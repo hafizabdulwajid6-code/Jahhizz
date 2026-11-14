@@ -2,915 +2,278 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JAHHIZ | Islamic Daily Tracker</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101c36">
+<title>JAHHIZ | Points System</title>
 <style>
-:root {
-    --green:#087f5b;
-    --green2:#10b981;
-    --bg:#f3f8f5;
-    --card:#ffffff;
-    --text:#18352b;
-    --muted:#82958b;
-    --line:#e5eee8;
+:root{
+--bg:#f1f4fc;--card:#fff;--text:#182744;--muted:#7d89a1;
+--blue:#2458d3;--navy:#101c36;--gold:#e5b95e;
+--border:#e5eaf4;
 }
-[data-theme="dark"] {
-    --bg:#0b1713;
-    --card:#14241d;
-    --text:#ecfdf5;
-    --muted:#9ab5a7;
-    --line:#294438;
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Arial,sans-serif}
+header{
+background:linear-gradient(120deg,#101c36,#2458d3,#7650c9);
+color:white;padding:25px 6%;border-radius:0 0 25px 25px;
 }
-* {box-sizing:border-box;margin:0;padding:0}
-body {
-    background:var(--bg);
-    color:var(--text);
-    font-family:Arial,sans-serif;
-    transition:.3s;
+.brand{font-size:25px;font-weight:bold;letter-spacing:3px}
+header p{font-size:12px;color:#dce7ff}
+main{max-width:1050px;margin:auto;padding:20px 15px 60px}
+h2{font-size:17px;margin:25px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{
+background:var(--card);padding:17px;border-radius:17px;
+border:1px solid var(--border);box-shadow:0 5px 20px #152e6410;
 }
-button,input,select {font:inherit}
-button {cursor:pointer}
-.app {display:flex;min-height:100vh}
-
-/* SIDEBAR */
-.sidebar {
-    width:245px;
-    background:#073f30;
-    color:white;
-    padding:28px 18px;
-    display:flex;
-    flex-direction:column;
-    flex-shrink:0;
+.stat{color:#fff;border:0}
+.stat small{opacity:.85}
+.stat strong{display:block;font-size:28px;margin-top:10px}
+.s1{background:linear-gradient(135deg,#17418d,#3978ef)}
+.s2{background:linear-gradient(135deg,#5733a4,#9470e6)}
+.s3{background:linear-gradient(135deg,#087c73,#28b7a3)}
+.s4{background:linear-gradient(135deg,#a76620,#e6b44e)}
+label{font-size:12px;display:block;margin:12px 0 6px;color:var(--muted)}
+select,input{
+width:100%;padding:12px;border:1px solid var(--border);
+border-radius:10px;background:#f7f9fe;color:#182744;
 }
-.logo {font-size:27px;font-weight:800;letter-spacing:2px;padding:8px 12px}
-.logo span {color:#6ee7b7}
-.tagline {color:#a7d8c4;font-size:11px;padding:0 13px;margin-bottom:40px}
-.menu-title {color:#8eb7a5;font-size:10px;font-weight:700;letter-spacing:2px;padding:0 13px;margin-bottom:13px}
-.menu {display:flex;flex-direction:column;gap:8px}
-.menu a {
-    text-decoration:none;color:#d0e9dc;
-    padding:14px;border-radius:12px;font-size:13px;
+button{
+border:0;background:var(--blue);color:white;padding:12px 16px;
+border-radius:10px;font-weight:bold;cursor:pointer;
 }
-.menu a:hover,.menu a.active {background:#12684f;color:white}
-.sidebar-bottom {
-    margin-top:auto;padding:15px;
-    border-top:1px solid #28634e;
-    color:#a7d8c4;font-size:12px;line-height:2;
+button:active{transform:scale(.98)}
+.full{width:100%;margin-top:14px}
+.result{
+font-size:27px;font-weight:bold;color:#2458d3;
+margin:12px 0;
 }
-
-/* MAIN */
-.main {flex:1;min-width:0;padding:30px;max-width:1500px;margin:auto}
-.topbar {
-    display:flex;justify-content:space-between;
-    align-items:center;gap:15px;margin-bottom:25px;
+.item{
+padding:13px 0;border-bottom:1px solid var(--border);
+display:flex;align-items:center;justify-content:space-between;gap:12px;
+font-size:13px;
 }
-.topbar p {color:var(--muted);font-size:13px;margin-top:5px}
-.top-actions {display:flex;align-items:center;gap:12px}
-.theme-btn,.avatar {
-    width:43px;height:43px;border-radius:13px;
-    display:grid;place-items:center;
+.item:last-child{border:0}
+.item b{color:#2458d3;white-space:nowrap}
+.progress{
+height:10px;background:#e8edf8;border-radius:20px;overflow:hidden;
+margin-top:12px;
 }
-.theme-btn {
-    background:var(--card);color:var(--text);
-    border:1px solid var(--line);font-size:19px;
+.fill{height:100%;background:linear-gradient(90deg,#2458d3,#9a74ed);width:0%}
+.badge{
+display:inline-block;padding:7px 11px;border-radius:20px;
+background:#fff1cb;color:#98651a;font-size:11px;font-weight:bold;
 }
-.avatar {background:#d1fae5;color:#065f46;font-weight:800}
-
-/* WELCOME */
-.welcome {
-    background:linear-gradient(120deg,#064e3b,#087f5b,#10b981);
-    color:white;border-radius:22px;padding:30px;
-    margin-bottom:25px;position:relative;overflow:hidden;
-}
-.welcome h2 {font-size:25px;margin-bottom:8px}
-.welcome p {color:#d1fae5;font-size:13px;line-height:1.8}
-.welcome .date {margin-top:18px;font-size:12px}
-
-/* SECTIONS */
-.section-title {
-    display:flex;justify-content:space-between;
-    align-items:center;margin:28px 0 16px;gap:10px;
-}
-.section-title h3 {font-size:17px}
-.section-title span {color:var(--muted);font-size:11px}
-.stats {display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.stat,.panel {
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:21px;
-}
-.stat-icon {
-    width:42px;height:42px;display:grid;
-    place-items:center;border-radius:13px;
-    background:#d1fae5;font-size:20px;margin-bottom:15px;
-}
-.stat h2 {font-size:27px}
-.stat p {color:var(--muted);font-size:12px;margin-top:7px}
-.panel {margin-bottom:18px;min-width:0}
-.panel h3 {font-size:16px;margin-bottom:17px}
-.progress-info {
-    display:flex;justify-content:space-between;
-    color:var(--muted);font-size:12px;margin:15px 0 9px;
-}
-.progress {
-    height:10px;background:var(--line);
-    border-radius:30px;overflow:hidden;
-}
-.progress-fill {
-    height:100%;width:0%;
-    background:linear-gradient(90deg,#087f5b,#34d399);
-    transition:width .3s;
-}
-
-/* FORM ELEMENTS */
-.prayer-row {
-    padding:16px 0;border-bottom:1px solid var(--line);
-}
-.prayer-row:last-child {border-bottom:none}
-.prayer-name {font-weight:700;font-size:14px;margin-bottom:10px}
-.field-grid {
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
-}
-.field label,.field-label {
-    display:block;font-size:11px;color:var(--muted);
-    margin-bottom:6px;
-}
-input[type="number"],select {
-    width:100%;min-width:0;
-    background:var(--bg);color:var(--text);
-    border:1px solid var(--line);
-    border-radius:10px;padding:11px;
-    outline:none;
-}
-input:focus,select:focus {border-color:var(--green)}
-.form-group {margin:15px 0}
-.form-group label {
-    display:block;font-size:12px;
-    color:var(--muted);margin-bottom:7px;
-}
-.form-group input {width:100%}
-.total-pages {
-    margin-top:10px;color:var(--green);
-    font-size:13px;font-weight:700;
-}
-.dhikr-row {
-    display:flex;align-items:center;gap:12px;
-    padding:12px 0;border-bottom:1px solid var(--line);
-}
-.dhikr-row:last-child {border:none}
-.dhikr-row label {flex:1;font-size:13px}
-.dhikr-row input {width:115px}
-.task {
-    display:flex;align-items:center;gap:12px;
-    padding:14px 0;border-bottom:1px solid var(--line);
-    font-size:13px;
-}
-.task:last-child {border-bottom:none}
-.task input {width:19px;height:19px;accent-color:var(--green)}
-.save-btn {
-    width:100%;border:none;border-radius:12px;
-    background:var(--green);color:white;
-    padding:15px;font-weight:700;margin-top:18px;
-}
-.save-btn:hover {background:#065f46}
-.message {font-size:12px;margin-top:12px;color:var(--green);text-align:center}
-.note {font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px}
-
-/* LEADERBOARD */
-.leader {
-    display:flex;align-items:center;gap:11px;
-    padding:13px 0;border-bottom:1px solid var(--line);
-}
-.rank {
-    width:28px;height:28px;background:var(--bg);
-    border-radius:9px;display:grid;place-items:center;
-    font-size:12px;font-weight:800;
-}
-.leader-name {flex:1}
-.leader-name strong {font-size:12px;display:block}
-.leader-name small {font-size:10px;color:var(--muted)}
-.leader-score {font-size:12px;color:var(--green);font-weight:800}
-.footer {text-align:center;padding:30px 10px;color:var(--muted);font-size:11px}
-.mobile-nav {display:none}
-
-@media(max-width:850px) {
-    .sidebar {display:none}
-    .main {padding:20px}
-    .mobile-nav {
-        display:flex;position:fixed;bottom:0;left:0;right:0;
-        z-index:10;background:var(--card);
-        border-top:1px solid var(--line);
-        justify-content:space-around;padding:12px 5px;
-    }
-    .mobile-nav a {
-        text-decoration:none;color:var(--muted);
-        font-size:10px;text-align:center;
-    }
-    .mobile-nav a span {display:block;font-size:19px;margin-bottom:4px}
-}
-@media(max-width:600px) {
-    .main {padding:15px;padding-bottom:85px}
-    .topbar h1 {font-size:22px}
-    .welcome {padding:23px 19px}
-    .welcome h2 {font-size:22px}
-    .stats {grid-template-columns:repeat(2,1fr);gap:10px}
-    .stat {padding:15px}
-    .stat h2 {font-size:23px}
-    .field-grid {grid-template-columns:1fr}
-    .panel {padding:17px}
-    .footer {padding-bottom:85px}
+.rank{display:flex;gap:12px;align-items:center;padding:12px 0;
+border-bottom:1px solid var(--border)}
+.ranknum{font-size:19px;width:30px}
+.rankname{flex:1;font-size:13px;font-weight:bold}
+.rankpoints{color:#2458d3;font-weight:bold;font-size:13px}
+.note{font-size:11px;color:var(--muted);line-height:1.6}
+@media(min-width:700px){
+.grid{grid-template-columns:repeat(4,1fr)}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 }
 </style>
 </head>
-
 <body>
-<div class="app">
+<header>
+<div class="brand">✦ JAHHIZ</div>
+<p>DAILY DEEDS · POINTS · PROGRESS</p>
+<h2 style="font-size:23px">Build consistency, every day.</h2>
+<p id="date"></p>
+</header>
 
-<aside class="sidebar">
-    <div class="logo">JAH<span>H</span>IZ</div>
-    <div class="tagline">YOUR DAILY GROWTH JOURNEY</div>
-    <div class="menu-title">MAIN MENU</div>
-    <nav class="menu">
-        <a href="#" class="active">▦ Dashboard</a>
-        <a href="#prayers">☑ Daily Prayers</a>
-        <a href="#quran">📖 Qur'an Tracker</a>
-        <a href="#dhikr">📿 Dhikr Tracker</a>
-        <a href="#sunnah">🌿 Sunnah Habits</a>
-        <a href="#leaderboard">♛ Leaderboard</a>
-    </nav>
-    <div class="sidebar-bottom">
-        <strong>JAHHIZ</strong><br>
-        Build good habits.<br>
-        Grow every day.
-    </div>
-</aside>
-
-<main class="main">
-
-<div class="topbar">
-    <div>
-        <h1>Dashboard</h1>
-        <p>Your journey towards consistency.</p>
-    </div>
-    <div class="top-actions">
-        <button class="theme-btn" id="themeToggle">🌙</button>
-        <div class="avatar">U</div>
-    </div>
+<main>
+<h2>🏆 Your Performance</h2>
+<div class="grid">
+<div class="card stat s1"><small>Today's Points</small><strong id="todayPoints">0</strong></div>
+<div class="card stat s2"><small>Total Points</small><strong id="totalPoints">0</strong></div>
+<div class="card stat s3"><small>Completed Activities</small><strong id="completed">0</strong></div>
+<div class="card stat s4"><small>Current Level</small><strong id="level">Starter</strong></div>
 </div>
 
-<section class="welcome">
-    <h2>Assalamu Alaikum! 👋</h2>
-    <p>Every good deed is a step towards a better you. Stay consistent and keep growing.</p>
-    <div class="date" id="todayDate"></div>
-</section>
-
-<div class="section-title">
-    <h3>Your Overview</h3>
-    <span>YOUR ACTIVITY</span>
+<h2>🕌 Salah Points</h2>
+<div class="card">
+<p class="note">നമസ്കാരത്തിന്റെ നിലയും നിർവഹിച്ച രീതിയും തിരഞ്ഞെടുക്കുക.</p>
+<div id="prayers"></div>
 </div>
 
-<section class="stats">
-    <div class="stat">
-        <div class="stat-icon">⭐</div>
-        <h2 id="totalPoints">0</h2>
-        <p>Total Points</p>
-    </div>
-    <div class="stat">
-        <div class="stat-icon">🔥</div>
-        <h2 id="streakCount">0</h2>
-        <p>Day Streak</p>
-    </div>
-    <div class="stat">
-        <div class="stat-icon">☑️</div>
-        <h2 id="completedCount">0/11</h2>
-        <p>Daily Activities</p>
-    </div>
+<div class="twocol">
+<section>
+<h2>📖 Quran Reading</h2>
+<div class="card">
+<label>Pages read today</label>
+<input type="number" id="pages" min="0" max="604" value="0">
+<p class="note">ഓരോ പേജിനും 2 പോയിന്റ്.</p>
+<div class="result" id="quranPoints">0 Points</div>
+</div>
 </section>
 
-<div class="section-title">
-    <h3>Daily Progress</h3>
-    <span id="progressPercent">0% Completed</span>
+<section>
+<h2>📿 Dhikr Activities</h2>
+<div class="card" id="dhikr"></div>
+</section>
 </div>
 
-<section class="panel">
-    <h3>Today's Achievement</h3>
-    <div class="progress-info">
-        <span>Daily Goal</span>
-        <strong id="progressText">0 of 11 completed</strong>
-    </div>
-    <div class="progress">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
-</section>
+<h2>🌙 Sunnah Activities</h2>
+<div class="card" id="sunnah"></div>
 
-<div class="section-title" id="prayers">
-    <h3>🕌 Five Daily Prayers</h3>
-    <span>SALAH TRACKER</span>
+<h2>📊 Today's Point Breakdown</h2>
+<div class="card">
+<div id="breakdown"></div>
+<div class="progress"><div class="fill" id="progress"></div></div>
+<p class="note" id="progressText">0% completed</p>
 </div>
 
-<section class="panel">
-    <h3>Prayer Details</h3>
-    <div id="prayerList">
+<button class="full" onclick="saveReport()">✓ SAVE TODAY'S REPORT</button>
+<button class="full" style="background:#64748b" onclick="resetForm()">RESET FORM</button>
 
-        <div class="prayer-row">
-            <div class="prayer-name">Fajr</div>
-            <div class="field-grid">
-                <div class="field">
-                    <label>Status</label>
-                    <select class="prayer-status" data-prayer="fajr">
-                        <option value="">Not recorded</option>
-                        <option value="yes">Completed</option>
-                        <option value="no">Not completed</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Method</label>
-                    <select class="prayer-method" data-prayer="fajr">
-                        <option value="">Select</option>
-                        <option value="Congregation">Congregation</option>
-                        <option value="Alone">Alone</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Place</label>
-                    <select class="prayer-place" data-prayer="fajr">
-                        <option value="">Select</option>
-                        <option value="Mosque">Mosque</option>
-                        <option value="Home">Home</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="prayer-row">
-            <div class="prayer-name">Dhuhr</div>
-            <div class="field-grid">
-                <div class="field">
-                    <label>Status</label>
-                    <select class="prayer-status" data-prayer="dhuhr">
-                        <option value="">Not recorded</option>
-                        <option value="yes">Completed</option>
-                        <option value="no">Not completed</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Method</label>
-                    <select class="prayer-method" data-prayer="dhuhr">
-                        <option value="">Select</option>
-                        <option value="Congregation">Congregation</option>
-                        <option value="Alone">Alone</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Place</label>
-                    <select class="prayer-place" data-prayer="dhuhr">
-                        <option value="">Select</option>
-                        <option value="Mosque">Mosque</option>
-                        <option value="Home">Home</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="prayer-row">
-            <div class="prayer-name">Asr</div>
-            <div class="field-grid">
-                <div class="field">
-                    <label>Status</label>
-                    <select class="prayer-status" data-prayer="asr">
-                        <option value="">Not recorded</option>
-                        <option value="yes">Completed</option>
-                        <option value="no">Not completed</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Method</label>
-                    <select class="prayer-method" data-prayer="asr">
-                        <option value="">Select</option>
-                        <option value="Congregation">Congregation</option>
-                        <option value="Alone">Alone</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Place</label>
-                    <select class="prayer-place" data-prayer="asr">
-                        <option value="">Select</option>
-                        <option value="Mosque">Mosque</option>
-                        <option value="Home">Home</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="prayer-row">
-            <div class="prayer-name">Maghrib</div>
-            <div class="field-grid">
-                <div class="field">
-                    <label>Status</label>
-                    <select class="prayer-status" data-prayer="maghrib">
-                        <option value="">Not recorded</option>
-                        <option value="yes">Completed</option>
-                        <option value="no">Not completed</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Method</label>
-                    <select class="prayer-method" data-prayer="maghrib">
-                        <option value="">Select</option>
-                        <option value="Congregation">Congregation</option>
-                        <option value="Alone">Alone</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Place</label>
-                    <select class="prayer-place" data-prayer="maghrib">
-                        <option value="">Select</option>
-                        <option value="Mosque">Mosque</option>
-                        <option value="Home">Home</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="prayer-row">
-            <div class="prayer-name">Isha</div>
-            <div class="field-grid">
-                <div class="field">
-                    <label>Status</label>
-                    <select class="prayer-status" data-prayer="isha">
-                        <option value="">Not recorded</option>
-                        <option value="yes">Completed</option>
-                        <option value="no">Not completed</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Method</label>
-                    <select class="prayer-method" data-prayer="isha">
-                        <option value="">Select</option>
-                        <option value="Congregation">Congregation</option>
-                        <option value="Alone">Alone</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Place</label>
-                    <select class="prayer-place" data-prayer="isha">
-                        <option value="">Select</option>
-                        <option value="Mosque">Mosque</option>
-                        <option value="Home">Home</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</section>
-
-<div class="section-title" id="quran">
-    <h3>📖 Qur'an Tracker</h3>
-    <span>DAILY RECITATION</span>
+<h2>♛ Leaderboard</h2>
+<div class="card">
+<div id="leaderboard"></div>
+<p class="note">ഇവിടെ കാണുന്ന അംഗങ്ങൾ മാതൃകാ പേരുകളാണ്. യഥാർത്ഥ അംഗങ്ങളുടെ പൊതുവായ റാങ്കിങ്ങിന് Shared Database ആവശ്യമാണ്.</p>
 </div>
 
-<section class="panel">
-    <h3>Qur'an Reading Details</h3>
-    <div class="form-group">
-        <label>Starting Page</label>
-        <input type="number" id="quranStart" min="1" max="604" placeholder="Example: 1">
-    </div>
-    <div class="form-group">
-        <label>Ending Page</label>
-        <input type="number" id="quranEnd" min="1" max="604" placeholder="Example: 10">
-    </div>
-    <p class="total-pages" id="quranTotal">Total Pages: 0</p>
-</section>
-
-<div class="section-title" id="dhikr">
-    <h3>📿 Dhikr Tracker</h3>
-    <span>DAILY ADHKAR</span>
+<h2>🏅 Achievement Levels</h2>
+<div class="grid">
+<div class="card"><span class="badge">🥉 Bronze</span><h3>500 Points</h3></div>
+<div class="card"><span class="badge">🥈 Silver</span><h3>1500 Points</h3></div>
+<div class="card"><span class="badge">🥇 Gold</span><h3>3000 Points</h3></div>
+<div class="card"><span class="badge">💎 Diamond</span><h3>5000 Points</h3></div>
 </div>
 
-<section class="panel">
-    <h3>Dhikr Counts</h3>
-
-    <div class="dhikr-row">
-        <label for="dhikrIstighfar">Istighfar</label>
-        <input type="number" class="dhikr-count" id="dhikrIstighfar" data-dhikr="istighfar" min="0" placeholder="Count">
-    </div>
-    <div class="dhikr-row">
-        <label for="dhikrSalawat">Salawat</label>
-        <input type="number" class="dhikr-count" id="dhikrSalawat" data-dhikr="salawat" min="0" placeholder="Count">
-    </div>
-    <div class="dhikr-row">
-        <label for="dhikrSubhanallah">Subhanallah</label>
-        <input type="number" class="dhikr-count" id="dhikrSubhanallah" data-dhikr="subhanallah" min="0" placeholder="Count">
-    </div>
-    <div class="dhikr-row">
-        <label for="dhikrAlhamdulillah">Alhamdulillah</label>
-        <input type="number" class="dhikr-count" id="dhikrAlhamdulillah" data-dhikr="alhamdulillah" min="0" placeholder="Count">
-    </div>
-    <div class="dhikr-row">
-        <label for="dhikrOther">Other Dhikr</label>
-        <input type="number" class="dhikr-count" id="dhikrOther" data-dhikr="other" min="0" placeholder="Count">
-    </div>
-    <p class="total-pages" id="dhikrTotal">Total Dhikr: 0</p>
-</section>
-
-<div class="section-title" id="sunnah">
-    <h3>🌿 Sunnah Habits</h3>
-    <span>DAILY PRACTICES</span>
-</div>
-
-<section class="panel">
-    <h3>Daily Sunnah Checklist</h3>
-
-    <label class="task">
-        <input type="checkbox" class="sunnah-task" data-sunnah="morning">
-        <span>Morning Adhkar</span>
-    </label>
-    <label class="task">
-        <input type="checkbox" class="sunnah-task" data-sunnah="evening">
-        <span>Evening Adhkar</span>
-    </label>
-    <label class="task">
-        <input type="checkbox" class="sunnah-task" data-sunnah="miswak">
-        <span>Using Miswak</span>
-    </label>
-    <label class="task">
-        <input type="checkbox" class="sunnah-task" data-sunnah="food">
-        <span>Reciting Bismillah before eating</span>
-    </label>
-    <label class="task">
-        <input type="checkbox" class="sunnah-task" data-sunnah="sleep">
-        <span>Adhkar before sleeping</span>
-    </label>
-    <label class="task">
-        <input type="checkbox" class="sunnah-task" data-sunnah="kindness">
-        <span>Kindness to parents and others</span>
-    </label>
-    <label class="task">
-        <input type="checkbox" class="sunnah-task" data-sunnah="salawat">
-        <span>Sending Salawat</span>
-    </label>
-</section>
-
-<section class="panel">
-    <h3>Save Your Daily Report</h3>
-    <p class="note">Save your daily entries on this device. You can update the report again during the same day.</p>
-    <button class="save-btn" id="saveDailyReport">Save Daily Report</button>
-    <p class="message" id="saveMessage"></p>
-</section>
-
-<div class="section-title" id="leaderboard">
-    <h3>🏆 Leaderboard</h3>
-    <span>DEMO RANKINGS</span>
-</div>
-
-<section class="panel">
-    <h3>Top Members</h3>
-    <div class="leader">
-        <div class="rank">🥇</div>
-        <div class="leader-name"><strong>Member One</strong><small>Demo Member</small></div>
-        <div class="leader-score">850 pts</div>
-    </div>
-    <div class="leader">
-        <div class="rank">🥈</div>
-        <div class="leader-name"><strong>Member Two</strong><small>Demo Member</small></div>
-        <div class="leader-score">720 pts</div>
-    </div>
-    <div class="leader">
-        <div class="rank">🥉</div>
-        <div class="leader-name"><strong>Member Three</strong><small>Demo Member</small></div>
-        <div class="leader-score">650 pts</div>
-    </div>
-    <div class="leader">
-        <div class="rank">4</div>
-        <div class="leader-name"><strong>You</strong><small>This device</small></div>
-        <div class="leader-score" id="myRankPoints">0 pts</div>
-    </div>
-    <p class="note">Demo rankings only. Real member rankings require a shared database and member accounts.</p>
-</section>
-
-<footer class="footer">
-    <p>JAHHIZ © 2026</p>
-    <p>Build good habits. Grow every day.</p>
-</footer>
-
+<p class="note" style="text-align:center;margin-top:30px">
+JAHHIZ © 2026 · App points are activity indicators, not a measure of spiritual reward.
+</p>
 </main>
-</div>
-
-<nav class="mobile-nav">
-    <a href="#"><span>▦</span>Home</a>
-    <a href="#prayers"><span>🕌</span>Salah</a>
-    <a href="#quran"><span>📖</span>Qur'an</a>
-    <a href="#dhikr"><span>📿</span>Dhikr</a>
-    <a href="#sunnah"><span>🌿</span>Sunnah</a>
-</nav>
 
 <script>
-// DATE
-function getToday() {
-    const d = new Date();
-    return d.getFullYear() + "-" +
-        String(d.getMonth()+1).padStart(2,"0") + "-" +
-        String(d.getDate()).padStart(2,"0");
+const prayerNames=["Fajr","Dhuhr","Asr","Maghrib","Isha"];
+const prayerPoints={Fajr:20,other:15,alone:10};
+const dhikrNames=["Morning Adhkar","Evening Adhkar","Istighfar Goal","Salawat Goal"];
+const sunnahNames=["Miswak","Bismillah before eating","Before-sleep Adhkar","Kindness to parents","Daily Salawat"];
+
+let saved={};
+let currentDate=key();
+let records=JSON.parse(localStorage.getItem("jahhizRecords")||"{}");
+
+function key(){
+let d=new Date();
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
-const today = getToday();
-const reportKey = "jahhiz-report-" + today;
+document.getElementById("date").textContent=new Date().toDateString();
 
-document.getElementById("todayDate").textContent =
-    new Date().toLocaleDateString("en-IN", {
-        weekday:"long",day:"numeric",month:"long",year:"numeric"
-    });
+function makeControls(){
+document.getElementById("prayers").innerHTML=prayerNames.map((p,i)=>`
+<div class="item">
+<strong>${p}</strong>
+<select id="prayer${i}" onchange="update()">
+<option value="0">Not recorded</option>
+<option value="mosque">Jama'ah – Mosque</option>
+<option value="home">Jama'ah – Home</option>
+<option value="alone">Alone</option>
+</select>
+</div>`).join("");
 
-// THEME
-const themeButton = document.getElementById("themeToggle");
-let savedTheme = localStorage.getItem("jahhiz-theme") || "light";
+document.getElementById("dhikr").innerHTML=dhikrNames.map((n,i)=>`
+<div class="item">
+<span>${n}</span>
+<input type="checkbox" id="dhikr${i}" onchange="update()" style="width:20px">
+</div>`).join("");
 
-function setTheme(theme) {
-    document.documentElement.setAttribute("data-theme",theme);
-    themeButton.textContent = theme === "dark" ? "☀️" : "🌙";
-    localStorage.setItem("jahhiz-theme",theme);
+document.getElementById("sunnah").innerHTML=sunnahNames.map((n,i)=>`
+<div class="item">
+<span>${n}</span>
+<input type="checkbox" id="sunnah${i}" onchange="update()" style="width:20px">
+</div>`).join("");
 }
-setTheme(savedTheme);
-
-themeButton.addEventListener("click",function() {
-    savedTheme = savedTheme === "light" ? "dark" : "light";
-    setTheme(savedTheme);
+function calculate(){
+let list=[];
+let salah=0;
+prayerNames.forEach((p,i)=>{
+let v=document.getElementById("prayer"+i).value;
+let points=0;
+if(v==="mosque")points=prayerPoints[p==="Fajr"?"Fajr":"other"];
+if(v==="home")points=p==="Fajr"?15:12;
+if(v==="alone")points=prayerPoints.alone;
+salah+=points;
+if(points)list.push({name:p+" Salah",points});
 });
+let pages=Math.max(0,Math.min(604,Number(document.getElementById("pages").value)||0));
+if(pages)list.push({name:"Quran Reading ("+pages+" pages)",points:pages*2});
 
-// ELEMENTS
-const prayerNames = ["fajr","dhuhr","asr","maghrib","isha"];
-const sunnahNames = [
-    "morning","evening","miswak","food",
-    "sleep","kindness","salawat"
-];
-const dhikrNames = [
-    "istighfar","salawat","subhanallah","alhamdulillah","other"
-];
-
-function getReport() {
-    try {
-        return JSON.parse(localStorage.getItem(reportKey)) || {};
-    } catch(e) {
-        return {};
-    }
-}
-
-let report = getReport();
-
-function setValue(selector,key,value) {
-    const element = document.querySelector(selector + '[data-' + key + ']');
-    if(element) element.value = value || "";
-}
-
-// RESTORE PRAYERS
-prayerNames.forEach(name => {
-    const p = report.prayers && report.prayers[name] || {};
-    document.querySelector('[data-prayer="' + name + '"].prayer-status').value = p.status || "";
-    document.querySelector('[data-prayer="' + name + '"].prayer-method').value = p.method || "";
-    document.querySelector('[data-prayer="' + name + '"].prayer-place').value = p.place || "";
+dhikrNames.forEach((n,i)=>{
+if(document.getElementById("dhikr"+i).checked)
+list.push({name:n,points:i<2?10:5});
 });
-
-// RESTORE QURAN
-document.getElementById("quranStart").value = report.quranStart || "";
-document.getElementById("quranEnd").value = report.quranEnd || "";
-
-// RESTORE DHIKR
-dhikrNames.forEach(name => {
-    const input = document.querySelector('[data-dhikr="' + name + '"]');
-    input.value = report.dhikr && report.dhikr[name] !== undefined ? report.dhikr[name] : "";
+sunnahNames.forEach((n,i)=>{
+if(document.getElementById("sunnah"+i).checked)
+list.push({name:n,points:5});
 });
-
-// RESTORE SUNNAH
-sunnahNames.forEach(name => {
-    const input = document.querySelector('[data-sunnah="' + name + '"]');
-    input.checked = !!(report.sunnah && report.sunnah[name]);
-});
-
-// COUNTS
-function getQuranPages() {
-    const start = Number(document.getElementById("quranStart").value);
-    const end = Number(document.getElementById("quranEnd").value);
-    if(start > 0 && end >= start) return end - start + 1;
-    return 0;
+return list;
 }
+function update(){
+let list=calculate();
+let total=list.reduce((s,x)=>s+x.points,0);
+let completed=list.length;
+document.getElementById("todayPoints").textContent=total;
+document.getElementById("completed").textContent=completed;
+document.getElementById("quranPoints").textContent=
+(Math.max(0,Number(document.getElementById("pages").value)||0)*2)+" Points";
 
-function getDhikrTotal() {
-    return dhikrNames.reduce((sum,name) => {
-        const input = document.querySelector('[data-dhikr="' + name + '"]');
-        return sum + Math.max(0,Number(input.value) || 0);
-    },0);
+let previous=Object.entries(records)
+.reduce((s,[date,r])=>date===currentDate?s:s+(r.points||0),0);
+document.getElementById("totalPoints").textContent=previous+total;
+
+let level=total+previous>=5000?"Diamond":total+previous>=3000?"Gold":
+total+previous>=1500?"Silver":total+previous>=500?"Bronze":"Starter";
+document.getElementById("level").textContent=level;
+
+document.getElementById("breakdown").innerHTML=list.length?
+list.map(x=>`<div class="item"><span>${x.name}</span><b>+${x.points} pts</b></div>`).join(""):
+'<p class="note">ഇന്ന് ഇതുവരെ പ്രവർത്തനങ്ങൾ രേഖപ്പെടുത്തിയിട്ടില്ല.</p>';
+
+let percent=Math.min(100,Math.round(total/200*100));
+document.getElementById("progress").style.width=percent+"%";
+document.getElementById("progressText").textContent=percent+"% of 200 daily target";
 }
-
-function updateLiveCounts() {
-    document.getElementById("quranTotal").textContent =
-        "Total Pages: " + getQuranPages();
-    document.getElementById("dhikrTotal").textContent =
-        "Total Dhikr: " + getDhikrTotal().toLocaleString("en-IN");
+function saveReport(){
+let list=calculate();
+let points=list.reduce((s,x)=>s+x.points,0);
+records[currentDate]={points,list};
+localStorage.setItem("jahhizRecords",JSON.stringify(records));
+update();
+renderLeaderboard();
+alert("Today's report saved successfully!");
 }
-document.getElementById("quranStart").addEventListener("input",updateLiveCounts);
-document.getElementById("quranEnd").addEventListener("input",updateLiveCounts);
-document.querySelectorAll(".dhikr-count").forEach(input => {
-    input.addEventListener("input",updateLiveCounts);
-});
-updateLiveCounts();
-
-// BUILD CURRENT REPORT
-function collectReport() {
-    const data = {
-        prayers:{},
-        quranStart:Number(document.getElementById("quranStart").value) || 0,
-        quranEnd:Number(document.getElementById("quranEnd").value) || 0,
-        dhikr:{},
-        sunnah:{}
-    };
-
-    prayerNames.forEach(name => {
-        data.prayers[name] = {
-            status:document.querySelector('[data-prayer="' + name + '"].prayer-status').value,
-            method:document.querySelector('[data-prayer="' + name + '"].prayer-method').value,
-            place:document.querySelector('[data-prayer="' + name + '"].prayer-place').value
-        };
-    });
-
-    dhikrNames.forEach(name => {
-        data.dhikr[name] = Math.max(0,Number(
-            document.querySelector('[data-dhikr="' + name + '"]').value
-        ) || 0);
-    });
-
-    sunnahNames.forEach(name => {
-        data.sunnah[name] = document.querySelector('[data-sunnah="' + name + '"]').checked;
-    });
-
-    return data;
+function resetForm(){
+if(!confirm("Reset today's form?"))return;
+prayerNames.forEach((p,i)=>document.getElementById("prayer"+i).value="0");
+dhikrNames.forEach((n,i)=>document.getElementById("dhikr"+i).checked=false);
+sunnahNames.forEach((n,i)=>document.getElementById("sunnah"+i).checked=false);
+document.getElementById("pages").value=0;
+update();
 }
-
-// COMPLETION COUNTS
-function getCompletion(data) {
-    let completed = 0;
-
-    prayerNames.forEach(name => {
-        if(data.prayers && data.prayers[name] &&
-            data.prayers[name].status === "yes") completed++;
-    });
-
-    const start = Number(data.quranStart) || 0;
-    const end = Number(data.quranEnd) || 0;
-    if(start > 0 && end >= start) completed++;
-
-    const dhikrTotal = dhikrNames.reduce((sum,name) =>
-        sum + (Number(data.dhikr && data.dhikr[name]) || 0),0
-    );
-    if(dhikrTotal > 0) completed++;
-
-    sunnahNames.forEach(name => {
-        if(data.sunnah && data.sunnah[name]) completed++;
-    });
-
-    return completed;
+function renderLeaderboard(){
+let total=Object.values(records).reduce((s,r)=>s+r.points,0);
+let people=[
+{name:"You",points:total},
+{name:"Member 02",points:0},
+{name:"Member 03",points:0}
+].sort((a,b)=>b.points-a.points);
+document.getElementById("leaderboard").innerHTML=people.map((p,i)=>`
+<div class="rank">
+<div class="ranknum">${["🥇","🥈","🥉"][i]}</div>
+<div class="rankname">${p.name}</div>
+<div class="rankpoints">${p.points} pts</div>
+</div>`).join("");
 }
-
-const totalActivities = 5 + 1 + 1 + sunnahNames.length;
-
-// POINTS ARE APP ACTIVITY POINTS, NOT A MEASURE OF SPIRITUAL VALUE
-function calculateDailyPoints(data) {
-    let points = 0;
-    prayerNames.forEach(name => {
-        if(data.prayers && data.prayers[name] &&
-            data.prayers[name].status === "yes") points += 10;
-    });
-
-    if(Number(data.quranStart) > 0 &&
-       Number(data.quranEnd) >= Number(data.quranStart)) points += 5;
-
-    const dhikrTotal = dhikrNames.reduce((sum,name) =>
-        sum + (Number(data.dhikr && data.dhikr[name]) || 0),0
-    );
-    if(dhikrTotal > 0) points += 5;
-
-    sunnahNames.forEach(name => {
-        if(data.sunnah && data.sunnah[name]) points += 5;
-    });
-    return points;
-}
-
-function getAllSavedReports() {
-    const reports = [];
-    for(let i=0;i<localStorage.length;i++) {
-        const key = localStorage.key(i);
-        if(key && key.startsWith("jahhiz-report-")) {
-            try {
-                reports.push({
-                    date:key.replace("jahhiz-report-",""),
-                    data:JSON.parse(localStorage.getItem(key))
-                });
-            } catch(e) {}
-        }
-    }
-    return reports;
-}
-
-function calculateStreak(reports) {
-    const completedDates = new Set(
-        reports.filter(item =>
-            getCompletion(item.data) === totalActivities
-        ).map(item => item.date)
-    );
-
-    let streak = 0;
-    const date = new Date();
-
-    while(true) {
-        const key = date.getFullYear() + "-" +
-            String(date.getMonth()+1).padStart(2,"0") + "-" +
-            String(date.getDate()).padStart(2,"0");
-
-        if(completedDates.has(key)) {
-            streak++;
-            date.setDate(date.getDate()-1);
-        } else {
-            break;
-        }
-    }
-    return streak;
-}
-
-// DASHBOARD
-function updateDashboard() {
-    const current = collectReport();
-    const completed = getCompletion(current);
-    const percentage = Math.round(completed / totalActivities * 100);
-    const reports = getAllSavedReports();
-
-    const totalPoints = reports.reduce((sum,item) =>
-        sum + calculateDailyPoints(item.data),0
-    );
-
-    document.getElementById("totalPoints").textContent =
-        totalPoints.toLocaleString("en-IN");
-
-    document.getElementById("completedCount").textContent =
-        completed + "/" + totalActivities;
-
-    document.getElementById("progressPercent").textContent =
-        percentage + "% Completed";
-
-    document.getElementById("progressText").textContent =
-        completed + " of " + totalActivities + " completed";
-
-    document.getElementById("progressFill").style.width =
-        percentage + "%";
-
-    document.getElementById("streakCount").textContent =
-        calculateStreak(reports);
-
-    document.getElementById("myRankPoints").textContent =
-        totalPoints + " pts";
-}
-
-// SAVE REPORT
-document.getElementById("saveDailyReport").addEventListener("click",function() {
-    const data = collectReport();
-
-    if(data.quranStart && data.quranEnd &&
-       data.quranEnd < data.quranStart) {
-        document.getElementById("saveMessage").textContent =
-            "Please check the Qur'an page range.";
-        return;
-    }
-
-    if(data.quranStart > 604 || data.quranEnd > 604) {
-        document.getElementById("saveMessage").textContent =
-            "Qur'an page number cannot exceed 604.";
-        return;
-    }
-
-    prayerNames.forEach(name => {
-        const p = data.prayers[name];
-        if(p.status === "yes" && (!p.method || !p.place)) {
-            p.method = p.method || "";
-            p.place = p.place || "";
-        }
-    });
-
-    localStorage.setItem(reportKey,JSON.stringify(data));
-    report = data;
-
-    updateDashboard();
-
-    document.getElementById("saveMessage").textContent =
-        "✓ Daily report saved successfully on this device!";
-});
-
-updateDashboard();
+makeControls();
+document.getElementById("pages").addEventListener("input",update);
+update();
+renderLeaderboard();
 </script>
-
 </body>
 </html>
