@@ -261,8 +261,35 @@ async function studentLogin() {
     message.textContent = error.message;
     return;
   }
+  async function showStudentProfile() {
+  const { data: { user }, error } =
+    await supabaseClient.auth.getUser();
+
+  if (error || !user) return;
+
+  document.getElementById("authBox").style.display = "none";
+  document.getElementById("profileBox").style.display = "block";
+
+  document.getElementById("profileName").textContent =
+    user.user_metadata.full_name || "Student";
+
+  document.getElementById("profileEmail").textContent =
+    user.email || "";
+}
+
+async function studentLogout() {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  location.reload();
+}
 
   message.textContent = "Welcome! Login successful.";
+  await showStudentProfile();
 }
 const prayerNames=["Fajr","Dhuhr","Asr","Maghrib","Isha"];
 const prayerPoints={Fajr:20,other:15,alone:10};
