@@ -87,6 +87,22 @@ border-bottom:1px solid var(--border)}
 </header>
 
 <main>
+<div class="card" id="authBox">
+  <h2>🎓 Student Login</h2>
+  <label>Full Name (For Registration)</label>
+  <input id="studentName" type="text" placeholder="Your full name">
+
+  <label>Email Address</label>
+  <input id="studentEmail" type="email" placeholder="Enter email">
+
+  <label>Password</label>
+  <input id="studentPassword" type="password" placeholder="Create password">
+
+  <button class="full" onclick="studentRegister()">CREATE ACCOUNT</button>
+  <button class="full" onclick="studentLogin()">LOGIN</button>
+
+  <p id="authMessage" class="note"></p>
+</div>
 <h2>🏆 Your Performance</h2>
 <div class="grid">
 <div class="card stat s1"><small>Today's Points</small><strong id="todayPoints">0</strong></div>
@@ -158,6 +174,58 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+async function studentRegister() {
+  const name = document.getElementById("studentName").value.trim();
+  const email = document.getElementById("studentEmail").value.trim();
+  const password = document.getElementById("studentPassword").value;
+
+  const message = document.getElementById("authMessage");
+
+  if (!name || !email || !password) {
+    message.textContent = "Please fill all fields.";
+    return;
+  }
+
+  if (password.length < 6) {
+    message.textContent = "Password must be at least 6 characters.";
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: name }
+    }
+  });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  message.textContent = data.session
+    ? "Account created successfully!"
+    : "Account created! Please verify your email.";
+}
+
+async function studentLogin() {
+  const email = document.getElementById("studentEmail").value.trim();
+  const password = document.getElementById("studentPassword").value;
+  const message = document.getElementById("authMessage");
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  message.textContent = "Welcome! Login successful.";
+}
 const prayerNames=["Fajr","Dhuhr","Asr","Maghrib","Isha"];
 const prayerPoints={Fajr:20,other:15,alone:10};
 const dhikrNames=["Morning Adhkar","Evening Adhkar","Istighfar Goal","Salawat Goal"];
