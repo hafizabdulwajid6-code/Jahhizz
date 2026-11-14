@@ -76,6 +76,7 @@ border-bottom:1px solid var(--border)}
 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <header>
@@ -150,6 +151,13 @@ JAHHIZ © 2026 · App points are activity indicators, not a measure of spiritual
 </main>
 
 <script>
+const SUPABASE_URL = "https://uxpzcarxcsrcbjpyjkns.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 const prayerNames=["Fajr","Dhuhr","Asr","Maghrib","Isha"];
 const prayerPoints={Fajr:20,other:15,alone:10};
 const dhikrNames=["Morning Adhkar","Evening Adhkar","Istighfar Goal","Salawat Goal"];
