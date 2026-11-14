@@ -1,0 +1,500 @@
+/* =========================================
+   JAHHIZ — PREMIUM ISLAMIC PRODUCTIVITY APP
+   Light + Dark Theme
+   Responsive Modern UI
+========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* THEME VARIABLES */
+
+:root {
+    color-scheme: light;
+
+    --primary: #087f5b;
+    --primary-dark: #065f46;
+    --accent: #d4af37;
+
+    --bg: #f3f8f5;
+    --surface: #ffffff;
+    --surface-2: #edf5f0;
+
+    --text: #18352b;
+    --muted: #82958b;
+
+    --border: #e1ebe4;
+
+    --shadow:
+        0 8px 30px rgba(0, 60, 40, 0.07);
+
+    --radius: 20px;
+}
+
+/* DARK MODE */
+
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    --primary: #34d399;
+    --primary-dark: #a7f3d0;
+    --accent: #e7c86b;
+
+    --bg: #0b1713;
+    --surface: #14241d;
+    --surface-2: #1c3027;
+
+    --text: #ecfdf5;
+    --muted: #9ab5a7;
+
+    --border: #294438;
+
+    --shadow:
+        0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* RESET */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(16,185,129,0.10),
+            transparent 35%
+        ),
+        var(--bg);
+
+    color: var(--text);
+
+    min-height: 100vh;
+    padding: 20px;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+/* HEADINGS */
+
+h1, h2, h3, h4 {
+    color: var(--text);
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.4;
+}
+
+h1 {
+    font-size: clamp(28px, 5vw, 40px);
+}
+
+h2 {
+    font-size: 25px;
+    margin-bottom: 18px;
+}
+
+h3 {
+    font-size: 19px;
+}
+
+/* MAIN CONTAINER */
+
+.container,
+main {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 20px auto;
+    padding: 28px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    transition: 0.3s ease;
+}
+
+/* HEADER */
+
+header {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto 25px;
+    padding: 22px;
+
+    background: linear-gradient(
+        135deg,
+        #064e3b,
+        #087f5b,
+        #10b981
+    );
+
+    color: white;
+
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(6,95,70,0.2);
+}
+
+header h1,
+header h2,
+header h3 {
+    color: white;
+}
+
+/* CARDS */
+
+.card,
+.stat-card {
+    background: var(--surface);
+
+    padding: 22px;
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    box-shadow: var(--shadow);
+
+    transition: all 0.3s ease;
+}
+
+.card:hover,
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+/* DAILY DEEDS */
+
+ul {
+    list-style: none;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    background: var(--surface-2);
+
+    padding: 16px;
+    margin: 12px 0;
+
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+
+    border-radius: 14px;
+
+    transition: 0.25s ease;
+}
+
+li:hover {
+    transform: translateX(4px);
+}
+
+/* BUTTONS */
+
+button {
+    font-family: inherit;
+
+    background: linear-gradient(
+        135deg,
+        #087f5b,
+        #10b981
+    );
+
+    color: white;
+
+    padding: 13px 22px;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 15px rgba(16,185,129,0.2);
+
+    transition: all 0.25s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+/* INPUT FIELDS */
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    color: var(--text);
+    background: var(--surface-2);
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    outline: none;
+
+    transition: 0.25s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 4px rgba(16,185,129,0.12);
+}
+
+/* CHECKBOX */
+
+input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* NAVIGATION */
+
+.nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    padding: 14px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    box-shadow: var(--shadow);
+}
+
+.nav-links a {
+    text-decoration: none;
+
+    color: var(--muted);
+
+    font-size: 14px;
+    font-weight: 700;
+
+    padding: 11px 15px;
+
+    border-radius: 10px;
+
+    transition: 0.25s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    background: var(--surface-2);
+    color: var(--primary);
+}
+
+/* PROGRESS BAR */
+
+.progress {
+    height: 12px;
+    width: 100%;
+
+    background: var(--surface-2);
+
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+
+    background: linear-gradient(
+        90deg,
+        #087f5b,
+        #34d399
+    );
+
+    border-radius: 50px;
+
+    transition: width 0.5s ease;
+}
+
+/* BADGES */
+
+.badge {
+    display: inline-block;
+
+    padding: 7px 13px;
+
+    background: var(--surface-2);
+    color: var(--primary);
+
+    border: 1px solid var(--border);
+    border-radius: 50px;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* TABLE */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+th {
+    padding: 15px;
+
+    background: var(--primary-dark);
+    color: var(--bg);
+
+    text-align: left;
+}
+
+td {
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+tr:hover td {
+    background: var(--surface-2);
+}
+
+/* LINKS */
+
+a {
+    color: var(--primary);
+    transition: 0.2s ease;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 20px;
+}
+
+/* ANIMATION */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+main,
+.container {
+    animation: fadeIn 0.5s ease;
+}
+
+/* MOBILE RESPONSIVE */
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 12px;
+    }
+
+    main,
+    .container {
+        padding: 19px 15px;
+        margin: 12px auto;
+        border-radius: 17px;
+    }
+
+    header {
+        padding: 19px;
+        border-radius: 17px;
+    }
+
+    h1 {
+        font-size: 27px;
+    }
+
+    h2 {
+        font-size: 21px;
+    }
+
+    li {
+        padding: 13px;
+    }
+
+    .nav-links {
+        gap: 5px;
+        padding: 9px;
+    }
+
+    .nav-links a {
+        padding: 9px;
+        font-size: 12px;
+    }
+
+    button {
+        padding: 12px 16px;
+    }
+}
+
+/* ACCESSIBILITY */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
