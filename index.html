@@ -2,227 +2,568 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101c36">
-<title>JAHHIZ | Points System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAHHIZ | Daily Deeds Tracker</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{
---bg:#f1f4fc;--card:#fff;--text:#182744;--muted:#7d89a1;
---blue:#2458d3;--navy:#101c36;--gold:#e5b95e;
---border:#e5eaf4;
+:root {
+  --bg:#f4f7f5;
+  --card:#ffffff;
+  --text:#172b25;
+  --muted:#718078;
+  --primary:#087f5b;
+  --primary-dark:#056044;
+  --border:#e3ebe6;
+  --soft:#eaf6f0;
+  --danger:#d64545;
+  --shadow:0 5px 22px rgba(20,60,40,.07);
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-font-family:Arial,sans-serif}
-header{
-background:linear-gradient(120deg,#101c36,#2458d3,#7650c9);
-color:white;padding:25px 6%;border-radius:0 0 25px 25px;
+body.dark {
+  --bg:#101c18;
+  --card:#1b2b24;
+  --text:#edf7f0;
+  --muted:#a8b9af;
+  --primary:#42bd8a;
+  --primary-dark:#279b6b;
+  --border:#31443a;
+  --soft:#263e32;
+  --shadow:0 5px 22px rgba(0,0,0,.2);
 }
-.brand{font-size:25px;font-weight:bold;letter-spacing:3px}
-header p{font-size:12px;color:#dce7ff}
-main{max-width:1050px;margin:auto;padding:20px 15px 60px}
-h2{font-size:17px;margin:25px 0 14px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.card{
-background:var(--card);padding:17px;border-radius:17px;
-border:1px solid var(--border);box-shadow:0 5px 20px #152e6410;
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  transition:.2s;
 }
-.stat{color:#fff;border:0}
-.stat small{opacity:.85}
-.stat strong{display:block;font-size:28px;margin-top:10px}
-.s1{background:linear-gradient(135deg,#17418d,#3978ef)}
-.s2{background:linear-gradient(135deg,#5733a4,#9470e6)}
-.s3{background:linear-gradient(135deg,#087c73,#28b7a3)}
-.s4{background:linear-gradient(135deg,#a76620,#e6b44e)}
-label{font-size:12px;display:block;margin:12px 0 6px;color:var(--muted)}
-select,input{
-width:100%;padding:12px;border:1px solid var(--border);
-border-radius:10px;background:#f7f9fe;color:#182744;
+button,input,select {font:inherit}
+button {cursor:pointer}
+.container {
+  width:min(100% - 28px,850px);
+  margin:auto;
+  padding-bottom:35px;
 }
-button{
-border:0;background:var(--blue);color:white;padding:12px 16px;
-border-radius:10px;font-weight:bold;cursor:pointer;
+header {
+  padding:25px 0 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
 }
-button:active{transform:scale(.98)}
-.full{width:100%;margin-top:14px}
-.result{
-font-size:27px;font-weight:bold;color:#2458d3;
-margin:12px 0;
+.brand {
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:2px;
+  color:var(--primary);
 }
-.item{
-padding:13px 0;border-bottom:1px solid var(--border);
-display:flex;align-items:center;justify-content:space-between;gap:12px;
-font-size:13px;
+.brand small {
+  display:block;
+  font-size:10px;
+  letter-spacing:3px;
+  color:var(--muted);
+  margin-top:4px;
 }
-.item:last-child{border:0}
-.item b{color:#2458d3;white-space:nowrap}
-.progress{
-height:10px;background:#e8edf8;border-radius:20px;overflow:hidden;
-margin-top:12px;
+.icon-btn {
+  background:var(--card);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:10px 13px;
+  border-radius:12px;
 }
-.fill{height:100%;background:linear-gradient(90deg,#2458d3,#9a74ed);width:0%}
-.badge{
-display:inline-block;padding:7px 11px;border-radius:20px;
-background:#fff1cb;color:#98651a;font-size:11px;font-weight:bold;
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:19px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
 }
-.rank{display:flex;gap:12px;align-items:center;padding:12px 0;
-border-bottom:1px solid var(--border)}
-.ranknum{font-size:19px;width:30px}
-.rankname{flex:1;font-size:13px;font-weight:bold}
-.rankpoints{color:#2458d3;font-weight:bold;font-size:13px}
-.note{font-size:11px;color:var(--muted);line-height:1.6}
-@media(min-width:700px){
-.grid{grid-template-columns:repeat(4,1fr)}
-.twocol{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+h2 {font-size:19px;margin:0 0 15px}
+h3 {margin:0}
+.note {font-size:13px;color:var(--muted);line-height:1.5}
+input,select {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:var(--bg);
+  color:var(--text);
+  margin:6px 0 12px;
+  outline:none;
+}
+input:focus,select:focus {border-color:var(--primary)}
+.primary-btn {
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:13px;
+  background:var(--primary);
+  color:white;
+  font-weight:700;
+  margin-top:7px;
+}
+.primary-btn:hover {background:var(--primary-dark)}
+.secondary-btn {
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  background:var(--soft);
+  color:var(--primary);
+  font-weight:700;
+  margin-top:8px;
+}
+.danger-btn {
+  background:var(--danger);
+  color:white;
+  border:0;
+  padding:10px 15px;
+  border-radius:10px;
+}
+.stats {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.stat {
+  background:var(--soft);
+  border-radius:14px;
+  padding:15px;
+}
+.stat strong {
+  display:block;
+  color:var(--primary);
+  font-size:25px;
+  margin-top:7px;
+}
+.stat span {font-size:12px;color:var(--muted)}
+.section-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:14px;
+}
+.section-heading h2 {margin:0}
+.activity {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 0;
+  border-bottom:1px solid var(--border);
+}
+.activity:last-child {border-bottom:0}
+.activity-info {min-width:0}
+.activity-name {font-weight:700;font-size:14px}
+.activity-sub {font-size:12px;color:var(--muted);margin-top:5px}
+.activity select {
+  width:145px;
+  margin:0;
+  padding:10px 8px;
+  font-size:12px;
+}
+.check-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:13px 0;
+  border-bottom:1px solid var(--border);
+  font-size:14px;
+}
+.check-row:last-child {border-bottom:0}
+.check-row input {
+  width:20px;
+  height:20px;
+  margin:0;
+  accent-color:var(--primary);
+}
+.points-tag {
+  color:var(--primary);
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.progress-track {
+  height:11px;
+  border-radius:20px;
+  background:var(--border);
+  overflow:hidden;
+  margin:13px 0 7px;
+}
+.progress-fill {
+  height:100%;
+  width:0%;
+  background:var(--primary);
+  border-radius:20px;
+  transition:.3s;
+}
+.hidden {display:none!important}
+.message {
+  font-size:13px;
+  color:var(--primary);
+  margin-top:10px;
+  line-height:1.5;
+}
+footer {
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:20px 0;
+}
+@media(min-width:600px) {
+  .stats {grid-template-columns:repeat(4,1fr)}
+  .container {width:min(100% - 40px,850px)}
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
+<div class="container">
+
 <header>
-<div class="brand">✦ JAHHIZ</div>
-<p>DAILY DEEDS · POINTS · PROGRESS</p>
-<h2 style="font-size:23px">Build consistency, every day.</h2>
-<p id="date"></p>
+  <div class="brand">
+    JAHHIZ
+    <small>DAILY DEEDS TRACKER</small>
+  </div>
+  <button class="icon-btn" id="themeToggle" onclick="toggleTheme()">🌙</button>
 </header>
 
-<main>
-<div class="card" id="authBox">
-  <h2>🎓 Student Login</h2>
-  <label>Full Name (For Registration)</label>
-  <input id="studentName" type="text" placeholder="Your full name">
+<!-- LOGIN / REGISTER -->
+<section class="card" id="authBox">
+  <h2>Welcome to JAHHIZ</h2>
+  <p class="note">Login or create your student account to track your daily deeds.</p>
 
-  <label>Email Address</label>
-  <input id="studentEmail" type="email" placeholder="Enter email">
+  <label class="note">Student Name (for registration)</label>
+  <input id="studentName" type="text" placeholder="Enter your name">
 
-  <label>Password</label>
-  <input id="studentPassword" type="password" placeholder="Create password">
+  <label class="note">Email Address</label>
+  <input id="studentEmail" type="email" placeholder="Enter your email">
 
-  <button class="full" onclick="studentRegister()">CREATE ACCOUNT</button>
-  <button class="full" onclick="studentLogin()">LOGIN</button>
+  <label class="note">Password</label>
+  <input id="studentPassword" type="password" placeholder="At least 6 characters">
 
-  <p id="authMessage" class="note"></p>
-</div>
-<div class="card" id="profileBox" style="display:none">
-  <h2>👤 Student Profile</h2>
-  <p class="note">Student Name</p>
+  <button class="primary-btn" onclick="studentRegister()">CREATE ACCOUNT</button>
+  <button class="secondary-btn" onclick="studentLogin()">LOGIN</button>
+  <p id="authMessage" class="message"></p>
+</section>
+
+<!-- PROFILE -->
+<section class="card hidden" id="profileBox">
+  <div class="section-heading">
+    <h2>👤 Student Profile</h2>
+    <button class="danger-btn" onclick="studentLogout()">Logout</button>
+  </div>
   <h3 id="profileName">Student</h3>
   <p class="note" id="profileEmail"></p>
-  <button class="full" onclick="studentLogout()"
-  style="background:#dc3545">LOGOUT</button>
-</div>
-<h2>🏆 Your Performance</h2>
-<div class="grid">
-<div class="card stat s1"><small>Today's Points</small><strong id="todayPoints">0</strong></div>
-<div class="card stat s2"><small>Total Points</small><strong id="totalPoints">0</strong></div>
-<div class="card stat s3"><small>Completed Activities</small><strong id="completed">0</strong></div>
-<div class="card stat s4"><small>Current Level</small><strong id="level">Starter</strong></div>
-</div>
-
-<h2>🕌 Salah Points</h2>
-<div class="card">
-<p class="note">നമസ്കാരത്തിന്റെ നിലയും നിർവഹിച്ച രീതിയും തിരഞ്ഞെടുക്കുക.</p>
-<div id="prayers"></div>
-</div>
-
-<div class="twocol">
-<section>
-<h2>📖 Quran Reading</h2>
-<div class="card">
-<label>Pages read today</label>
-<input type="number" id="pages" min="0" max="604" value="0">
-<p class="note">ഓരോ പേജിനും 2 പോയിന്റ്.</p>
-<div class="result" id="quranPoints">0 Points</div>
-</div>
+  <p class="note">Your daily progress is saved to your account.</p>
 </section>
 
-<section>
-<h2>📿 Dhikr Activities</h2>
-<div class="card" id="dhikr"></div>
-</section>
-</div>
+<!-- DASHBOARD -->
+<main id="dashboard" class="hidden">
 
-<h2>🌙 Sunnah Activities</h2>
-<div class="card" id="sunnah"></div>
+  <section class="card">
+    <div class="section-heading">
+      <h2>📊 Points Dashboard</h2>
+      <input type="date" id="date" style="width:auto;margin:0">
+    </div>
 
-<h2>📊 Today's Point Breakdown</h2>
-<div class="card">
-<div id="breakdown"></div>
-<div class="progress"><div class="fill" id="progress"></div></div>
-<p class="note" id="progressText">0% completed</p>
-</div>
+    <div class="stats">
+      <div class="stat">
+        <span>Today's Points</span>
+        <strong id="todayPoints">0</strong>
+      </div>
+      <div class="stat">
+        <span>Weekly Points</span>
+        <strong id="weeklyPoints">0</strong>
+      </div>
+      <div class="stat">
+        <span>Monthly Points</span>
+        <strong id="monthlyPoints">0</strong>
+      </div>
+      <div class="stat">
+        <span>Total Points</span>
+        <strong id="totalPoints">0</strong>
+      </div>
+    </div>
 
-<button class="full" onclick="saveReport()">✓ SAVE TODAY'S REPORT</button>
-<button class="full" style="background:#64748b" onclick="resetForm()">RESET FORM</button>
+    <div style="margin-top:20px">
+      <div class="section-heading">
+        <h2>Daily Progress</h2>
+        <strong id="progressText">0%</strong>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p class="note" id="completedText">0 activities completed</p>
+    </div>
+  </section>
 
-<h2>♛ Leaderboard</h2>
-<div class="card">
-<div id="leaderboard"></div>
-<p class="note">ഇവിടെ കാണുന്ന അംഗങ്ങൾ മാതൃകാ പേരുകളാണ്. യഥാർത്ഥ അംഗങ്ങളുടെ പൊതുവായ റാങ്കിങ്ങിന് Shared Database ആവശ്യമാണ്.</p>
-</div>
+  <!-- SALAH -->
+  <section class="card">
+    <div class="section-heading">
+      <h2>🕌 Salah Activities</h2>
+      <span class="points-tag">Up to 80 points</span>
+    </div>
+    <p class="note">Choose how you performed each prayer.</p>
 
-<h2>🏅 Achievement Levels</h2>
-<div class="grid">
-<div class="card"><span class="badge">🥉 Bronze</span><h3>500 Points</h3></div>
-<div class="card"><span class="badge">🥈 Silver</span><h3>1500 Points</h3></div>
-<div class="card"><span class="badge">🥇 Gold</span><h3>3000 Points</h3></div>
-<div class="card"><span class="badge">💎 Diamond</span><h3>5000 Points</h3></div>
-</div>
+    <div class="activity">
+      <div class="activity-info">
+        <div class="activity-name">Fajr</div>
+        <div class="activity-sub">Morning prayer</div>
+      </div>
+      <select class="prayer-select" data-prayer="Fajr">
+        <option value="">Not completed</option>
+        <option value="mosque">Mosque</option>
+        <option value="home">Home congregation</option>
+        <option value="alone">Alone</option>
+      </select>
+    </div>
 
-<p class="note" style="text-align:center;margin-top:30px">
-JAHHIZ © 2026 · App points are activity indicators, not a measure of spiritual reward.
-</p>
+    <div class="activity">
+      <div class="activity-info">
+        <div class="activity-name">Dhuhr</div>
+        <div class="activity-sub">Noon prayer</div>
+      </div>
+      <select class="prayer-select" data-prayer="Dhuhr">
+        <option value="">Not completed</option>
+        <option value="mosque">Mosque</option>
+        <option value="home">Home congregation</option>
+        <option value="alone">Alone</option>
+      </select>
+    </div>
+
+    <div class="activity">
+      <div class="activity-info">
+        <div class="activity-name">Asr</div>
+        <div class="activity-sub">Afternoon prayer</div>
+      </div>
+      <select class="prayer-select" data-prayer="Asr">
+        <option value="">Not completed</option>
+        <option value="mosque">Mosque</option>
+        <option value="home">Home congregation</option>
+        <option value="alone">Alone</option>
+      </select>
+    </div>
+
+    <div class="activity">
+      <div class="activity-info">
+        <div class="activity-name">Maghrib</div>
+        <div class="activity-sub">Sunset prayer</div>
+      </div>
+      <select class="prayer-select" data-prayer="Maghrib">
+        <option value="">Not completed</option>
+        <option value="mosque">Mosque</option>
+        <option value="home">Home congregation</option>
+        <option value="alone">Alone</option>
+      </select>
+    </div>
+
+    <div class="activity">
+      <div class="activity-info">
+        <div class="activity-name">Isha</div>
+        <div class="activity-sub">Night prayer</div>
+      </div>
+      <select class="prayer-select" data-prayer="Isha">
+        <option value="">Not completed</option>
+        <option value="mosque">Mosque</option>
+        <option value="home">Home congregation</option>
+        <option value="alone">Alone</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- QURAN -->
+  <section class="card">
+    <div class="section-heading">
+      <h2>📖 Qur'an Reading</h2>
+      <span class="points-tag">2 points / page</span>
+    </div>
+
+    <label class="note">Number of pages read</label>
+    <input type="number" id="quranPages" min="0" max="604" value="0" placeholder="Enter pages">
+
+    <label class="note">Surah / Reading details (optional)</label>
+    <input type="text" id="quranDetails" placeholder="Example: Surah Al-Baqarah">
+
+    <p class="note" id="quranPoints">Qur'an points: 0</p>
+  </section>
+
+  <!-- DHIKR -->
+  <section class="card">
+    <div class="section-heading">
+      <h2>📿 Dhikr Activities</h2>
+      <span class="points-tag">Daily goals</span>
+    </div>
+
+    <label class="check-row">
+      <input type="checkbox" class="dhikr-check" data-name="Morning Adhkar" data-points="10">
+      <span>Morning Adhkar</span>
+      <span class="points-tag">10 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="dhikr-check" data-name="Evening Adhkar" data-points="10">
+      <span>Evening Adhkar</span>
+      <span class="points-tag">10 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="dhikr-check" data-name="Istighfar Goal" data-points="5">
+      <span>Istighfar Goal</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="dhikr-check" data-name="Salawat Goal" data-points="5">
+      <span>Salawat Goal</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+  </section>
+
+  <!-- SUNNAH -->
+  <section class="card">
+    <div class="section-heading">
+      <h2>🌿 Sunnah Activities</h2>
+      <span class="points-tag">5 points each</span>
+    </div>
+
+    <label class="check-row">
+      <input type="checkbox" class="sunnah-check" data-name="Miswak">
+      <span>Using Miswak</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="sunnah-check" data-name="Bismillah before eating">
+      <span>Bismillah before eating</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="sunnah-check" data-name="Before-sleep Adhkar">
+      <span>Before-sleep Adhkar</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="sunnah-check" data-name="Kindness to parents">
+      <span>Kindness to parents</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="sunnah-check" data-name="Daily Salawat">
+      <span>Daily Salawat</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="sunnah-check" data-name="Dua">
+      <span>Daily Dua</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+
+    <label class="check-row">
+      <input type="checkbox" class="sunnah-check" data-name="Bedtime Reflection">
+      <span>Bedtime Reflection</span>
+      <span class="points-tag">5 pts</span>
+    </label>
+  </section>
+
+  <!-- DAILY SUMMARY -->
+  <section class="card">
+    <h2>📋 Today's Report</h2>
+    <div id="breakdown" class="note">Complete your activities to see the report.</div>
+    <button class="primary-btn" onclick="saveReport()">SAVE DAILY REPORT</button>
+    <p id="saveMessage" class="message"></p>
+  </section>
+
+  <section class="card">
+    <h2>🏆 My Points</h2>
+    <p class="note">Your saved points are connected to your student account.</p>
+    <p>Daily: <strong id="myDaily">0</strong></p>
+    <p>Weekly: <strong id="myWeekly">0</strong></p>
+    <p>Monthly: <strong id="myMonthly">0</strong></p>
+    <p>Total: <strong id="myTotal">0</strong></p>
+  </section>
+
 </main>
 
+<footer>
+  JAHHIZ · Build good habits, one day at a time.
+</footer>
+
+</div>
+
 <script>
+// =======================================
+// 1. SUPABASE CONNECTION
+// =======================================
+
 const SUPABASE_URL = "https://uxpzcarxcsrcbjpyjkns.supabase.co";
-const SUPABASE_KEY = "sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
+
+// Paste your existing Supabase PUBLISHABLE KEY below.
+const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
+let currentUser = null;
+let currentDate = getLocalDate();
+
+// =======================================
+// 2. DATE
+// =======================================
+
+function getLocalDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+// =======================================
+// 3. THEME
+// =======================================
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+
+  const isDark = document.body.classList.contains("dark");
+  localStorage.setItem("jahhiz-theme", isDark ? "dark" : "light");
+
+  document.getElementById("themeToggle").textContent =
+    isDark ? "☀️" : "🌙";
+}
+
+if (localStorage.getItem("jahhiz-theme") === "dark") {
+  document.body.classList.add("dark");
+  document.getElementById("themeToggle").textContent = "☀️";
+}
+
+// =======================================
+// 4. REGISTER
+// =======================================
+
 async function studentRegister() {
   const name = document.getElementById("studentName").value.trim();
   const email = document.getElementById("studentEmail").value.trim();
   const password = document.getElementById("studentPassword").value;
   const message = document.getElementById("authMessage");
 
-  message.textContent = "Please wait...";
+  message.textContent = "";
 
-  try {
-    if (!name || !email || !password) {
-      message.textContent = "Please fill all fields.";
-      return;
-    }
-
-    if (password.length < 6) {
-      message.textContent = "Password must be at least 6 characters.";
-      return;
-    }
-
-    if (!window.supabase) {
-      throw new Error("Supabase library not loaded.");
-    }
-
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name }
-      }
-    });
-
-    if (error) throw error;
-
-    message.textContent = data.session
-      ? "Account created successfully!"
-      : "Account created! Please verify your email.";
-
-  } catch (error) {
-    message.textContent = "Error: " + error.message;
+  if (!name || !email || !password) {
+    message.textContent = "Please fill in all fields.";
+    return;
   }
-}
 
   if (password.length < 6) {
     message.textContent = "Password must be at least 6 characters.";
@@ -242,40 +583,76 @@ async function studentRegister() {
     return;
   }
 
-  message.textContent = data.session
-    ? "Account created successfully!"
-    : "Account created! Please verify your email.";
+  if (data.session) {
+    currentUser = data.user;
+    await showStudentProfile();
+    await loadDashboard();
+    message.textContent = "Account created successfully!";
+  } else {
+    message.textContent =
+      "Account created. Please verify your email, then login.";
+  }
 }
+
+// =======================================
+// 5. LOGIN
+// =======================================
 
 async function studentLogin() {
   const email = document.getElementById("studentEmail").value.trim();
   const password = document.getElementById("studentPassword").value;
   const message = document.getElementById("authMessage");
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
+  message.textContent = "";
+
+  if (!email || !password) {
+    message.textContent = "Enter your email and password.";
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
   if (error) {
     message.textContent = error.message;
     return;
   }
-  async function showStudentProfile() {
-  const { data: { user }, error } =
-    await supabaseClient.auth.getUser();
 
-  if (error || !user) return;
+  currentUser = data.user;
+  await showStudentProfile();
+  await loadDashboard();
+}
 
-  document.getElementById("authBox").style.display = "none";
-  document.getElementById("profileBox").style.display = "block";
+// =======================================
+// 6. PROFILE
+// =======================================
+
+async function showStudentProfile() {
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("full_name")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  document.getElementById("authBox").classList.add("hidden");
+  document.getElementById("profileBox").classList.remove("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
 
   document.getElementById("profileName").textContent =
-    user.user_metadata.full_name || "Student";
+    data && data.full_name ? data.full_name : "Student";
 
   document.getElementById("profileEmail").textContent =
-    user.email || "";
+    currentUser.email || "";
+
+  if (error) console.error(error.message);
 }
+
+// =======================================
+// 7. LOGOUT
+// =======================================
 
 async function studentLogout() {
   const { error } = await supabaseClient.auth.signOut();
@@ -288,144 +665,338 @@ async function studentLogout() {
   location.reload();
 }
 
-  message.textContent = "Welcome! Login successful.";
-  await showStudentProfile();
-}
-const prayerNames=["Fajr","Dhuhr","Asr","Maghrib","Isha"];
-const prayerPoints={Fajr:20,other:15,alone:10};
-const dhikrNames=["Morning Adhkar","Evening Adhkar","Istighfar Goal","Salawat Goal"];
-const sunnahNames=["Miswak","Bismillah before eating","Before-sleep Adhkar","Kindness to parents","Daily Salawat"];
+// =======================================
+// 8. COLLECT ACTIVITIES
+// =======================================
 
-let saved={};
-let currentDate=key();
-let records=JSON.parse(localStorage.getItem("jahhizRecords")||"{}");
+function calculateActivities() {
+  const items = [];
 
-function key(){
-let d=new Date();
-return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-}
-document.getElementById("date").textContent=new Date().toDateString();
+  // Salah points
+  document.querySelectorAll(".prayer-select").forEach(select => {
+    const prayer = select.dataset.prayer;
+    const choice = select.value;
 
-function makeControls(){
-document.getElementById("prayers").innerHTML=prayerNames.map((p,i)=>`
-<div class="item">
-<strong>${p}</strong>
-<select id="prayer${i}" onchange="update()">
-<option value="0">Not recorded</option>
-<option value="mosque">Jama'ah – Mosque</option>
-<option value="home">Jama'ah – Home</option>
-<option value="alone">Alone</option>
-</select>
-</div>`).join("");
+    if (!choice) return;
 
-document.getElementById("dhikr").innerHTML=dhikrNames.map((n,i)=>`
-<div class="item">
-<span>${n}</span>
-<input type="checkbox" id="dhikr${i}" onchange="update()" style="width:20px">
-</div>`).join("");
+    let points = 10;
 
-document.getElementById("sunnah").innerHTML=sunnahNames.map((n,i)=>`
-<div class="item">
-<span>${n}</span>
-<input type="checkbox" id="sunnah${i}" onchange="update()" style="width:20px">
-</div>`).join("");
-}
-function calculate(){
-let list=[];
-let salah=0;
-prayerNames.forEach((p,i)=>{
-let v=document.getElementById("prayer"+i).value;
-let points=0;
-if(v==="mosque")points=prayerPoints[p==="Fajr"?"Fajr":"other"];
-if(v==="home")points=p==="Fajr"?15:12;
-if(v==="alone")points=prayerPoints.alone;
-salah+=points;
-if(points)list.push({name:p+" Salah",points});
-});
-let pages=Math.max(0,Math.min(604,Number(document.getElementById("pages").value)||0));
-if(pages)list.push({name:"Quran Reading ("+pages+" pages)",points:pages*2});
-
-dhikrNames.forEach((n,i)=>{
-if(document.getElementById("dhikr"+i).checked)
-list.push({name:n,points:i<2?10:5});
-});
-sunnahNames.forEach((n,i)=>{
-if(document.getElementById("sunnah"+i).checked)
-list.push({name:n,points:5});
-});
-return list;
-}
-function update(){
-let list=calculate();
-let total=list.reduce((s,x)=>s+x.points,0);
-let completed=list.length;
-document.getElementById("todayPoints").textContent=total;
-document.getElementById("completed").textContent=completed;
-document.getElementById("quranPoints").textContent=
-(Math.max(0,Number(document.getElementById("pages").value)||0)*2)+" Points";
-
-let previous=Object.entries(records)
-.reduce((s,[date,r])=>date===currentDate?s:s+(r.points||0),0);
-document.getElementById("totalPoints").textContent=previous+total;
-
-let level=total+previous>=5000?"Diamond":total+previous>=3000?"Gold":
-total+previous>=1500?"Silver":total+previous>=500?"Bronze":"Starter";
-document.getElementById("level").textContent=level;
-
-document.getElementById("breakdown").innerHTML=list.length?
-list.map(x=>`<div class="item"><span>${x.name}</span><b>+${x.points} pts</b></div>`).join(""):
-'<p class="note">ഇന്ന് ഇതുവരെ പ്രവർത്തനങ്ങൾ രേഖപ്പെടുത്തിയിട്ടില്ല.</p>';
-
-let percent=Math.min(100,Math.round(total/200*100));
-document.getElementById("progress").style.width=percent+"%";
-document.getElementById("progressText").textContent=percent+"% of 200 daily target";
-}
-function saveReport(){
-let list=calculate();
-let points=list.reduce((s,x)=>s+x.points,0);
-records[currentDate]={points,list};
-localStorage.setItem("jahhizRecords",JSON.stringify(records));
-update();
-renderLeaderboard();
-alert("Today's report saved successfully!");
-}
-function resetForm(){
-if(!confirm("Reset today's form?"))return;
-prayerNames.forEach((p,i)=>document.getElementById("prayer"+i).value="0");
-dhikrNames.forEach((n,i)=>document.getElementById("dhikr"+i).checked=false);
-sunnahNames.forEach((n,i)=>document.getElementById("sunnah"+i).checked=false);
-document.getElementById("pages").value=0;
-update();
-}
-function renderLeaderboard(){
-let total=Object.values(records).reduce((s,r)=>s+r.points,0);
-let people=[
-{name:"You",points:total},
-{name:"Member 02",points:0},
-{name:"Member 03",points:0}
-].sort((a,b)=>b.points-a.points);
-document.getElementById("leaderboard").innerHTML=people.map((p,i)=>`
-<div class="rank">
-<div class="ranknum">${["🥇","🥈","🥉"][i]}</div>
-<div class="rankname">${p.name}</div>
-<div class="rankpoints">${p.points} pts</div>
-</div>`).join("");
-}
-makeControls();
-document.getElementById("pages").addEventListener("input",update);
-update();
-renderLeaderboard();
-async function loadStudentPoints(){
-    const { data, error } = await supabaseClient
-        .rpc("get_my_points");
-
-    if(error){
-        console.error(error);
-        return;
+    if (choice === "mosque") {
+      points = prayer === "Fajr" ? 20 : 15;
+    } else if (choice === "home") {
+      points = prayer === "Fajr" ? 15 : 12;
     }
+
+    items.push({
+      name: "Salah: " + prayer,
+      points
+    });
+  });
+
+  // Qur'an points
+  const pages = Math.min(
+    604,
+    Math.max(0, Number(document.getElementById("quranPages").value) || 0)
+  );
+
+  if (pages > 0) {
+    items.push({
+      name: "Quran Reading",
+      points: pages * 2
+    });
+  }
+
+  // Dhikr points
+  document.querySelectorAll(".dhikr-check:checked").forEach(check => {
+    items.push({
+      name: "Dhikr: " + check.dataset.name,
+      points: Number(check.dataset.points)
+    });
+  });
+
+  // Sunnah points
+  document.querySelectorAll(".sunnah-check:checked").forEach(check => {
+    items.push({
+      name: "Sunnah: " + check.dataset.name,
+      points: 5
+    });
+  });
+
+  return items;
+}
+
+// =======================================
+// 9. UPDATE SCREEN
+// =======================================
+
+function updateDashboard() {
+  const items = calculateActivities();
+  const total = items.reduce((sum, item) => sum + item.points, 0);
+
+  const completed = items.length;
+  const percentage = Math.min(100, Math.round((completed / 17) * 100));
+
+  document.getElementById("todayPoints").textContent = total;
+  document.getElementById("completedText").textContent =
+    completed + " activities completed";
+
+  document.getElementById("progressText").textContent =
+    percentage + "%";
+
+  document.getElementById("progressFill").style.width =
+    percentage + "%";
+
+  const quranPages = Math.min(
+    604,
+    Math.max(0, Number(document.getElementById("quranPages").value) || 0)
+  );
+
+  document.getElementById("quranPoints").textContent =
+    "Qur'an points: " + (quranPages * 2);
+
+  const breakdown = document.getElementById("breakdown");
+
+  if (items.length === 0) {
+    breakdown.textContent = "No activities completed yet.";
+  } else {
+    breakdown.innerHTML = items.map(item =>
+      `<div class="activity">
+        <span>${escapeHTML(item.name)}</span>
+        <strong class="points-tag">${item.points} pts</strong>
+      </div>`
+    ).join("");
+  }
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[char]);
+}
+
+// =======================================
+// 10. SAVE DAILY REPORT
+// =======================================
+
+async function saveReport() {
+  if (!currentUser) return;
+
+  const message = document.getElementById("saveMessage");
+  message.textContent = "Saving report...";
+
+  const items = calculateActivities();
+
+  // Remove the previous report for this user and date.
+  const { error: deleteError } = await supabaseClient
+    .from("daily_deeds")
+    .delete()
+    .eq("user_id", currentUser.id)
+    .eq("deed_date", currentDate);
+
+  if (deleteError) {
+    message.textContent = "Could not update report: " + deleteError.message;
+    return;
+  }
+
+  if (items.length > 0) {
+    const rows = items.map(item => ({
+      user_id: currentUser.id,
+      deed_name: item.name,
+      points: item.points,
+      deed_date: currentDate
+    }));
+
+    const { error: insertError } = await supabaseClient
+      .from("daily_deeds")
+      .insert(rows);
+
+    if (insertError) {
+      message.textContent = "Save failed: " + insertError.message;
+      return;
+    }
+  }
+
+  message.textContent = "Daily report saved successfully!";
+
+  updateDashboard();
+  await loadStudentPoints();
+}
+
+// =======================================
+// 11. LOAD SAVED DAILY REPORT
+// =======================================
+
+async function loadDailyReport() {
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from("daily_deeds")
+    .select("deed_name, points")
+    .eq("user_id", currentUser.id)
+    .eq("deed_date", currentDate);
+
+  if (error) {
+    console.error(error.message);
+    return;
+  }
+
+  // Clear current selections first.
+  document.querySelectorAll(".prayer-select").forEach(select => {
+    select.value = "";
+  });
+
+  document.getElementById("quranPages").value = 0;
+  document.getElementById("quranDetails").value = "";
+
+  document.querySelectorAll(".dhikr-check, .sunnah-check").forEach(check => {
+    check.checked = false;
+  });
+
+  (data || []).forEach(item => {
+    const name = item.deed_name;
+
+    if (name.startsWith("Salah: ")) {
+      const prayer = name.replace("Salah: ", "");
+      const select = document.querySelector(
+        `.prayer-select[data-prayer="${prayer}"]`
+      );
+
+      if (select) {
+        if (prayer === "Fajr") {
+          if (item.points === 20) select.value = "mosque";
+          else if (item.points === 15) select.value = "home";
+          else select.value = "alone";
+        } else {
+          if (item.points === 15) select.value = "mosque";
+          else if (item.points === 12) select.value = "home";
+          else select.value = "alone";
+        }
+      }
+    }
+
+    if (name === "Quran Reading") {
+      document.getElementById("quranPages").value =
+        Math.floor(item.points / 2);
+    }
+
+    if (name.startsWith("Dhikr: ")) {
+      const dhikrName = name.replace("Dhikr: ", "");
+      document.querySelectorAll(".dhikr-check").forEach(check => {
+        if (check.dataset.name === dhikrName) check.checked = true;
+      });
+    }
+
+    if (name.startsWith("Sunnah: ")) {
+      const sunnahName = name.replace("Sunnah: ", "");
+      document.querySelectorAll(".sunnah-check").forEach(check => {
+        if (check.dataset.name === sunnahName) check.checked = true;
+      });
+    }
+  });
+
+  updateDashboard();
+}
+
+// =======================================
+// 12. LOAD TOTAL POINTS
+// =======================================
+
+async function loadStudentPoints() {
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient.rpc("get_my_points");
+
+  if (error) {
+    console.error("Points error:", error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) return;
+
+  const p = data[0];
+
+  document.getElementById("weeklyPoints").textContent =
+    p.weekly_points;
+
+  document.getElementById("monthlyPoints").textContent =
+    p.monthly_points;
+
+  document.getElementById("totalPoints").textContent =
+    p.total_points;
+
+  document.getElementById("myDaily").textContent =
+    p.daily_points;
+
+  document.getElementById("myWeekly").textContent =
+    p.weekly_points;
+
+  document.getElementById("myMonthly").textContent =
+    p.monthly_points;
+
+  document.getElementById("myTotal").textContent =
+    p.total_points;
+
+  if (currentDate === getLocalDate()) {
+    document.getElementById("todayPoints").textContent =
+      p.daily_points;
+  }
+}
+
+// =======================================
+// 13. LOAD DASHBOARD
+// =======================================
+
+async function loadDashboard() {
+  document.getElementById("date").value = currentDate;
+
+  await loadDailyReport();
+  await loadStudentPoints();
+}
+
+// =======================================
+// 14. DATE CHANGE
+// =======================================
+
+document.getElementById("date").addEventListener("change", async function() {
+  if (!this.value) return;
+
+  currentDate = this.value;
+  await loadDailyReport();
+
+  // Show the selected day's points.
+  const items = calculateActivities();
+  const total = items.reduce((sum, item) => sum + item.points, 0);
+
+  document.getElementById("todayPoints").textContent = total;
+});
+
+// =======================================
+// 15. LIVE ACTIVITY UPDATES
+// =======================================
+
+document.addEventListener("change", function(event) {
+  if (
+    event.target.matches(".prayer-select") ||
+    event.target.matches(".dhikr-check") ||
+    event.target.matches(".sunnah-check") ||
+    event.target.id === "quranPages"
+  ) {
+    updateDashboard();
+  }
+});
+
+document.getElementById("quranPages").addEventListener("input", updateDashboard);
+
+// =======================================
+// 16. CHECK LOGIN SESSION
+// =======================================
+
 async function checkStudentSession() {
-  const { data, error } =
-    await supabaseClient.auth.getSession();
+  const { data, error } = await supabaseClient.auth.getSession();
 
   if (error) {
     console.error(error.message);
@@ -433,20 +1004,25 @@ async function checkStudentSession() {
   }
 
   if (data.session) {
+    currentUser = data.session.user;
     await showStudentProfile();
+    await loadDashboard();
   }
 }
 
+// =======================================
+// 17. AUTH STATE LISTENER
+// =======================================
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_OUT") {
+    currentUser = null;
+  }
+});
+
+// START
 checkStudentSession();
-    if(!data || data.length === 0) return;
 
-    const p = data[0];
-
-    console.log("Daily:", p.daily_points);
-    console.log("Weekly:", p.weekly_points);
-    console.log("Monthly:", p.monthly_points);
-    console.log("Total:", p.total_points);
-}
 </script>
 </body>
 </html>
