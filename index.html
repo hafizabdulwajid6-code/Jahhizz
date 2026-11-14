@@ -350,6 +350,24 @@ makeControls();
 document.getElementById("pages").addEventListener("input",update);
 update();
 renderLeaderboard();
+async function loadStudentPoints(){
+    const { data, error } = await supabaseClient
+        .rpc("get_my_points");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    if(!data || data.length === 0) return;
+
+    const p = data[0];
+
+    console.log("Daily:", p.daily_points);
+    console.log("Weekly:", p.weekly_points);
+    console.log("Monthly:", p.monthly_points);
+    console.log("Total:", p.total_points);
+}
 </script>
 </body>
 </html>
