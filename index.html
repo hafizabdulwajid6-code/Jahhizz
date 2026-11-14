@@ -178,13 +178,43 @@ async function studentRegister() {
   const name = document.getElementById("studentName").value.trim();
   const email = document.getElementById("studentEmail").value.trim();
   const password = document.getElementById("studentPassword").value;
-
   const message = document.getElementById("authMessage");
 
-  if (!name || !email || !password) {
-    message.textContent = "Please fill all fields.";
-    return;
+  message.textContent = "Please wait...";
+
+  try {
+    if (!name || !email || !password) {
+      message.textContent = "Please fill all fields.";
+      return;
+    }
+
+    if (password.length < 6) {
+      message.textContent = "Password must be at least 6 characters.";
+      return;
+    }
+
+    if (!window.supabase) {
+      throw new Error("Supabase library not loaded.");
+    }
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name }
+      }
+    });
+
+    if (error) throw error;
+
+    message.textContent = data.session
+      ? "Account created successfully!"
+      : "Account created! Please verify your email.";
+
+  } catch (error) {
+    message.textContent = "Error: " + error.message;
   }
+}
 
   if (password.length < 6) {
     message.textContent = "Password must be at least 6 characters.";
