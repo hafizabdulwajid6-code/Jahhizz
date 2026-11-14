@@ -423,7 +423,21 @@ async function loadStudentPoints(){
         console.error(error);
         return;
     }
+async function checkStudentSession() {
+  const { data, error } =
+    await supabaseClient.auth.getSession();
 
+  if (error) {
+    console.error(error.message);
+    return;
+  }
+
+  if (data.session) {
+    await showStudentProfile();
+  }
+}
+
+checkStudentSession();
     if(!data || data.length === 0) return;
 
     const p = data[0];
