@@ -1,204 +1,949 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="style.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jahhiz | Daily Deeds Tracker</title>
+
+<title>JAHHIZ | Islamic Habit Tracker</title>
+
+<link rel="stylesheet" href="style.css">
+
 <style>
+:root {
+    --green: #087f5b;
+    --green2: #10b981;
+    --bg: #f3f8f5;
+    --card: #ffffff;
+    --text: #18352b;
+    --muted: #82958b;
+    --line: #e5eee8;
+}
+
+[data-theme="dark"] {
+    --bg: #0b1713;
+    --card: #14241d;
+    --text: #ecfdf5;
+    --muted: #9ab5a7;
+    --line: #294438;
+}
+
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
 body {
-  margin: 0;
-  font-family: Arial, poppins, sans-serif;
-  background: #f5f7f5;
-  color: #183b30;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 0;
+    display: block;
+    transition: .3s;
 }
-header {
-  background: #123d30;
-  color: white;
-  padding: 22px;
-  text-align: center;
-}
-header h1 {
-  font-size: 32px;
-  margin: 0;
-}
-header p {
-  margin-bottom: 0;
-  color: #d2e8dc;
-}
-nav {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  padding: 15px;
-  background: white;
-}
+
 button {
-  border: 0;
-  padding: 11px 18px;
-  border-radius: 8px;
-  background: #176b50;
-  color: white;
-  cursor: pointer;
+    cursor: pointer;
+    font-family: inherit;
 }
-main {
-  max-width: 850px;
-  margin: 25px auto;
-  padding: 15px;
+
+.app {
+    display: flex;
+    min-height: 100vh;
 }
-.card {
-  background: white;
-  padding: 22px;
-  margin-bottom: 18px;
-  border-radius: 14px;
-  box-shadow: 0 2px 10px #0000000b;
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 245px;
+    background: #073f30;
+    color: white;
+    padding: 28px 18px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
 }
-h2 {
-  margin-top: 0;
+
+.logo {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 8px 12px;
 }
-.deed {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 13px 0;
-  border-bottom: 1px solid #eee;
+
+.logo span {
+    color: #6ee7b7;
 }
-.deed input {
-  width: 20px;
-  height: 20px;
+
+.tagline {
+    color: #a7d8c4;
+    font-size: 11px;
+    padding: 0 13px;
+    margin-bottom: 40px;
 }
+
+.menu-title {
+    color: #8eb7a5;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 0 13px;
+    margin-bottom: 13px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #d0e9dc;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.menu a:hover,
+.menu a.active {
+    background: #12684f;
+    color: white;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 15px;
+    border-top: 1px solid #28634e;
+    color: #a7d8c4;
+    font-size: 12px;
+    line-height: 2;
+}
+
+/* MAIN */
+
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 30px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+/* TOPBAR */
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.topbar p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.theme-btn {
+    width: 43px;
+    height: 43px;
+    border-radius: 13px;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--line);
+    font-size: 19px;
+}
+
+.avatar {
+    width: 43px;
+    height: 43px;
+    border-radius: 14px;
+    background: #d1fae5;
+    display: grid;
+    place-items: center;
+    color: #065f46;
+    font-weight: 800;
+}
+
+/* WELCOME */
+
+.welcome {
+    background: linear-gradient(
+        120deg,
+        #064e3b,
+        #087f5b,
+        #10b981
+    );
+    color: white;
+    border-radius: 22px;
+    padding: 30px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome:after {
+    content: "✦";
+    position: absolute;
+    right: 35px;
+    top: 5px;
+    font-size: 120px;
+    opacity: .12;
+}
+
+.welcome h2 {
+    color: white;
+    font-size: 27px;
+    margin-bottom: 8px;
+}
+
+.welcome p {
+    color: #d1fae5;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.welcome .date {
+    margin-top: 20px;
+    font-size: 12px;
+    opacity: .85;
+}
+
+/* SECTION */
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 28px 0 16px;
+    gap: 10px;
+}
+
+.section-title h3 {
+    font-size: 17px;
+    color: var(--text);
+}
+
+.section-title span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* STAT CARDS */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.025);
+}
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #d1fae5;
+    font-size: 20px;
+    margin-bottom: 17px;
+}
+
+.stat h2 {
+    font-size: 28px;
+    margin: 0;
+    color: var(--text);
+}
+
+.stat p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+/* CONTENT GRID */
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    min-width: 0;
+}
+
+.panel h3 {
+    font-size: 16px;
+    margin-bottom: 17px;
+    color: var(--text);
+}
+
+/* PROGRESS */
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 12px;
+    margin: 15px 0 9px;
+}
+
+.progress {
+    height: 10px;
+    background: var(--line);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(
+        90deg,
+        #087f5b,
+        #34d399
+    );
+    border-radius: 30px;
+    transition: width .4s;
+}
+
+/* DAILY TASKS */
+
+.task {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.task:last-child {
+    border-bottom: none;
+}
+
+.task input {
+    width: 20px;
+    height: 20px;
+    accent-color: #10b981;
+    flex-shrink: 0;
+}
+
+.task-info {
+    flex: 1;
+}
+
+.task-info strong {
+    font-size: 13px;
+    display: block;
+    color: var(--text);
+}
+
+.task-info small {
+    color: var(--muted);
+    font-size: 11px;
+}
+
 .points {
-  color: #176b50;
-  font-weight: bold;
+    font-size: 11px;
+    font-weight: 800;
+    color: #10b981;
+    white-space: nowrap;
 }
-footer {
-  text-align: center;
-  padding: 25px;
-  color: #777;
+
+/* LEADERBOARD */
+
+.leader {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.leader:last-child {
+    border: none;
+}
+
+.rank {
+    width: 28px;
+    height: 28px;
+    background: var(--bg);
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.leader-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.leader-name strong {
+    font-size: 12px;
+    display: block;
+}
+
+.leader-name small {
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.leader-score {
+    font-size: 12px;
+    color: #10b981;
+    font-weight: 800;
+}
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+    padding: 30px 10px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* MOBILE NAV */
+
+.mobile-nav {
+    display: none;
+}
+
+@media(max-width: 850px) {
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        padding: 20px;
+    }
+
+    .mobile-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background: var(--card);
+        border-top: 1px solid var(--line);
+        justify-content: space-around;
+        padding: 12px 5px;
+    }
+
+    .mobile-nav a {
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 10px;
+        text-align: center;
+    }
+
+    .mobile-nav a span {
+        display: block;
+        font-size: 19px;
+        margin-bottom: 4px;
+    }
+
+    .footer {
+        padding-bottom: 85px;
+    }
+}
+
+@media(max-width: 600px) {
+    .main {
+        padding: 15px;
+        padding-bottom: 80px;
+    }
+
+    .topbar {
+        margin-bottom: 20px;
+    }
+
+    .topbar h1 {
+        font-size: 22px;
+    }
+
+    .welcome {
+        padding: 23px 19px;
+    }
+
+    .welcome h2 {
+        font-size: 22px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat {
+        padding: 15px;
+    }
+
+    .stat h2 {
+        font-size: 23px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .panel {
+        padding: 17px;
+    }
+
+    .section-title {
+        margin-top: 23px;
+    }
 }
 </style>
 </head>
+
 <body>
 
-<header>
-  <h1>JAHHIZ</h1>
-  <p>Islamic Daily Deeds Tracker</p>
-</header>
+<div class="app">
 
-<nav>
-  <button onclick="setLanguage('en')">English</button>
-  <button onclick="setLanguage('ml')">മലയാളം</button>
-  <button onclick="setLanguage('ar')">العربية</button>
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="logo">JAH<span>H</span>IZ</div>
+    <div class="tagline">YOUR DAILY GROWTH JOURNEY</div>
+
+    <div class="menu-title">MAIN MENU</div>
+
+    <nav class="menu">
+        <a href="#" class="active">▦ &nbsp; Dashboard</a>
+        <a href="#deeds">☑ &nbsp; Daily Deeds</a>
+        <a href="#progress">◉ &nbsp; My Progress</a>
+        <a href="#leaderboard">♛ &nbsp; Leaderboard</a>
+        <a href="#profile">◉ &nbsp; My Profile</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <strong>JAHHIZ</strong><br>
+        Build good habits.<br>
+        Grow every day.
+    </div>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+
+<main class="main">
+
+    <!-- TOPBAR -->
+
+    <div class="topbar">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Your journey towards consistency.</p>
+        </div>
+
+        <div class="top-actions">
+            <button class="theme-btn" id="themeToggle"
+            aria-label="Switch theme">🌙</button>
+
+            <div class="avatar">U</div>
+        </div>
+    </div>
+
+    <!-- WELCOME -->
+
+    <section class="welcome">
+        <h2>Assalamu Alaikum! 👋</h2>
+        <p>
+            Every good deed is a step towards a better you.
+            Stay consistent and keep growing.
+        </p>
+
+        <div class="date" id="todayDate"></div>
+    </section>
+
+    <!-- STATISTICS -->
+
+    <div class="section-title">
+        <h3>Your Overview</h3>
+        <span>YOUR ACTIVITY</span>
+    </div>
+
+    <section class="stats">
+
+        <div class="stat">
+            <div class="stat-icon">⭐</div>
+            <h2 id="totalPoints">0</h2>
+            <p>Total Points</p>
+        </div>
+
+        <div class="stat">
+            <div class="stat-icon">🔥</div>
+            <h2 id="streakCount">0</h2>
+            <p>Day Streak</p>
+        </div>
+
+        <div class="stat">
+            <div class="stat-icon">☑️</div>
+            <h2 id="completedCount">0/6</h2>
+            <p>Today's Deeds</p>
+        </div>
+
+    </section>
+
+    <!-- PROGRESS -->
+
+    <div class="section-title" id="progress">
+        <h3>Daily Progress</h3>
+        <span id="progressPercent">0% Completed</span>
+    </div>
+
+    <section class="panel">
+        <h3>Today's Achievement</h3>
+
+        <div class="progress-info">
+            <span>Daily Goal</span>
+            <strong id="progressText">0 of 6 completed</strong>
+        </div>
+
+        <div class="progress">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </section>
+
+    <!-- DAILY DEEDS -->
+
+    <div class="section-title" id="deeds">
+        <h3>Daily Deeds</h3>
+        <span>COMPLETE YOUR TASKS</span>
+    </div>
+
+    <section class="panel">
+        <h3>Today's Good Habits 🌿</h3>
+
+        <div id="taskList">
+
+            <label class="task">
+                <input type="checkbox" data-task="fajr">
+                <div class="task-info">
+                    <strong>Fajr Prayer</strong>
+                    <small>Perform the Fajr prayer</small>
+                </div>
+                <span class="points">+10 pts</span>
+            </label>
+
+            <label class="task">
+                <input type="checkbox" data-task="quran">
+                <div class="task-info">
+                    <strong>Qur'an Reading</strong>
+                    <small>Read today's Qur'an portion</small>
+                </div>
+                <span class="points">+10 pts</span>
+            </label>
+
+            <label class="task">
+                <input type="checkbox" data-task="dhikr">
+                <div class="task-info">
+                    <strong>Daily Dhikr</strong>
+                    <small>Complete your daily adhkar</small>
+                </div>
+                <span class="points">+10 pts</span>
+            </label>
+
+            <label class="task">
+                <input type="checkbox" data-task="study">
+                <div class="task-info">
+                    <strong>Islamic Studies</strong>
+                    <small>Spend time learning beneficial knowledge</small>
+                </div>
+                <span class="points">+10 pts</span>
+            </label>
+
+            <label class="task">
+                <input type="checkbox" data-task="charity">
+                <div class="task-info">
+                    <strong>Act of Kindness</strong>
+                    <small>Do something beneficial for others</small>
+                </div>
+                <span class="points">+10 pts</span>
+            </label>
+
+            <label class="task">
+                <input type="checkbox" data-task="night">
+                <div class="task-info">
+                    <strong>Night Reflection</strong>
+                    <small>Reflect on your day</small>
+                </div>
+                <span class="points">+10 pts</span>
+            </label>
+
+        </div>
+    </section>
+
+    <!-- LEADERBOARD -->
+
+    <div class="section-title" id="leaderboard">
+        <h3>🏆 Leaderboard</h3>
+        <span>DEMO RANKINGS</span>
+    </div>
+
+    <section class="panel">
+        <h3>Top Members</h3>
+
+        <div class="leader">
+            <div class="rank">🥇</div>
+            <div class="leader-name">
+                <strong>Member One</strong>
+                <small>Top Performer</small>
+            </div>
+            <div class="leader-score">850 pts</div>
+        </div>
+
+        <div class="leader">
+            <div class="rank">🥈</div>
+            <div class="leader-name">
+                <strong>Member Two</strong>
+                <small>Active Member</small>
+            </div>
+            <div class="leader-score">720 pts</div>
+        </div>
+
+        <div class="leader">
+            <div class="rank">🥉</div>
+            <div class="leader-name">
+                <strong>Member Three</strong>
+                <small>Consistent Member</small>
+            </div>
+            <div class="leader-score">650 pts</div>
+        </div>
+
+        <div class="leader">
+            <div class="rank">4</div>
+            <div class="leader-name">
+                <strong>You</strong>
+                <small>Your Account</small>
+            </div>
+            <div class="leader-score" id="myRankPoints">0 pts</div>
+        </div>
+
+    </section>
+
+    <footer class="footer">
+        <p>JAHHIZ © 2026</p>
+        <p>Build good habits. Become better every day.</p>
+    </footer>
+
+</main>
+</div>
+
+<!-- MOBILE NAVIGATION -->
+
+<nav class="mobile-nav">
+    <a href="#"><span>▦</span>Home</a>
+    <a href="#deeds"><span>☑</span>Deeds</a>
+    <a href="#progress"><span>◉</span>Progress</a>
+    <a href="#leaderboard"><span>♛</span>Ranks</a>
 </nav>
 
-<main>
-  <section class="card">
-    <h2 id="welcome">Welcome to Jahhiz</h2>
-    <p id="intro">Build good habits. Track your daily deeds. Grow together.</p>
-  </section>
-
-  <section class="card">
-    <h2 id="daily">Daily Deeds</h2>
-
-    <div class="deed">
-      <span id="fajr">Fajr Prayer</span>
-      <input type="checkbox">
-    </div>
-
-    <div class="deed">
-      <span id="dhuhr">Dhuhr Prayer</span>
-      <input type="checkbox">
-    </div>
-
-    <div class="deed">
-      <span id="asr">Asr Prayer</span>
-      <input type="checkbox">
-    </div>
-
-    <div class="deed">
-      <span id="maghrib">Maghrib Prayer</span>
-      <input type="checkbox">
-    </div>
-
-    <div class="deed">
-      <span id="isha">Isha Prayer</span>
-      <input type="checkbox">
-    </div>
-
-    <p class="points">Jahhiz - Daily Progress</p>
-  </section>
-
-  <section class="card">
-    <h2 id="account">Member Account</h2>
-    <p id="login">Login and Signup coming soon.</p>
-  </section>
-
-  <section class="card">
-    <h2 id="ranking">Points & Ranking</h2>
-    <p id="rankinfo">Member rankings will appear here.</p>
-  </section>
-</main>
-
-<footer>
-  © 2026 Jahhiz | Islamic Daily Deeds Tracker
-</footer>
-
 <script>
-const languages = {
-  en: {
-    welcome:"Welcome to Jahhiz",
-    intro:"Build good habits. Track your daily deeds. Grow together.",
-    daily:"Daily Deeds",
-    fajr:"Fajr Prayer",
-    dhuhr:"Dhuhr Prayer",
-    asr:"Asr Prayer",
-    maghrib:"Maghrib Prayer",
-    isha:"Isha Prayer",
-    account:"Member Account",
-    login:"Login and Signup coming soon.",
-    ranking:"Points & Ranking",
-    rankinfo:"Member rankings will appear here."
-  },
-  ml: {
-    welcome:"ജഹ്ഹീസിലേക്ക് സ്വാഗതം",
-    intro:"നല്ല ശീലങ്ങൾ വളർത്താം. നന്മകൾ രേഖപ്പെടുത്താം.",
-    daily:"ദൈനംദിന കർമ്മങ്ങൾ",
-    fajr:"സുബ്ഹ് നമസ്കാരം",
-    dhuhr:"ളുഹർ നമസ്കാരം",
-    asr:"അസർ നമസ്കാരം",
-    maghrib:"മഗ്‌രിബ് നമസ്കാരം",
-    isha:"ഇശാ നമസ്കാരം",
-    account:"അംഗത്തിന്റെ അക്കൗണ്ട്",
-    login:"ലോഗിൻ, രജിസ്ട്രേഷൻ ഉടൻ വരുന്നു.",
-    ranking:"പോയിന്റ് & റാങ്കിങ്",
-    rankinfo:"അംഗങ്ങളുടെ റാങ്കിങ് ഇവിടെ കാണാം."
-  },
-  ar: {
-    welcome:"مرحباً بكم في جاهز",
-    intro:"نبني العادات الحسنة ونتابع الأعمال اليومية.",
-    daily:"الأعمال اليومية",
-    fajr:"صلاة الفجر",
-    dhuhr:"صلاة الظهر",
-    asr:"صلاة العصر",
-    maghrib:"صلاة المغرب",
-    isha:"صلاة العشاء",
-    account:"حساب العضو",
-    login:"تسجيل الدخول قريباً",
-    ranking:"النقاط والترتيب",
-    rankinfo:"سيظهر ترتيب الأعضاء هنا."
-  }
-};
 
-function setLanguage(lang) {
-  const data = languages[lang];
-  Object.keys(data).forEach(key => {
-    document.getElementById(key).textContent = data[key];
-  });
-  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+// DATE
+
+const dateElement = document.getElementById("todayDate");
+
+dateElement.textContent =
+    new Date().toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+// THEME SWITCH
+
+const themeButton = document.getElementById("themeToggle");
+
+let savedTheme = localStorage.getItem("jahhiz-theme") || "light";
+
+function setTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    themeButton.textContent = theme === "dark" ? "☀️" : "🌙";
+    localStorage.setItem("jahhiz-theme", theme);
 }
+
+setTheme(savedTheme);
+
+themeButton.addEventListener("click", () => {
+    savedTheme =
+        savedTheme === "light" ? "dark" : "light";
+
+    setTheme(savedTheme);
+});
+
+// DAILY TASK SYSTEM
+
+const tasks = document.querySelectorAll("[data-task]");
+
+const pointsPerTask = 10;
+const totalTasks = tasks.length;
+
+const today = new Date().toLocaleDateString("en-CA");
+
+const storedDate = localStorage.getItem("jahhiz-date");
+
+if (storedDate !== today) {
+    localStorage.setItem("jahhiz-date", today);
+    localStorage.setItem("jahhiz-daily", "{}");
+}
+
+let dailyData = JSON.parse(
+    localStorage.getItem("jahhiz-daily") || "{}"
+);
+
+let totalPoints = Number(
+    localStorage.getItem("jahhiz-points") || 0
+);
+
+let completedDays = JSON.parse(
+    localStorage.getItem("jahhiz-days") || "[]"
+);
+
+// RESTORE CHECKBOXES
+
+tasks.forEach(task => {
+    task.checked = dailyData[task.dataset.task] === true;
+
+    task.addEventListener("change", () => {
+
+        dailyData[task.dataset.task] = task.checked;
+
+        localStorage.setItem(
+            "jahhiz-daily",
+            JSON.stringify(dailyData)
+        );
+
+        updateDashboard();
+    });
+});
+
+// STREAK CALCULATION
+
+function calculateStreak() {
+
+    const completed = [...tasks].every(task =>
+        dailyData[task.dataset.task] === true
+    );
+
+    if (completed && !completedDays.includes(today)) {
+        completedDays.push(today);
+    }
+
+    completedDays = [...new Set(completedDays)].sort();
+
+    localStorage.setItem(
+        "jahhiz-days",
+        JSON.stringify(completedDays)
+    );
+
+    let streak = 0;
+    let checkDate = new Date();
+
+    while (true) {
+        const dateString = checkDate.toLocaleDateString("en-CA");
+
+        if (completedDays.includes(dateString)) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+
+    return streak;
+}
+
+// UPDATE DASHBOARD
+
+function updateDashboard() {
+
+    const completed = [...tasks].filter(task =>
+        task.checked
+    ).length;
+
+    const earnedPoints = completed * pointsPerTask;
+
+    totalPoints = Math.max(
+        0,
+        Number(localStorage.getItem("jahhiz-points") || 0)
+    );
+
+    const previousCompleted = Number(
+        localStorage.getItem("jahhiz-previous-count") || 0
+    );
+
+    totalPoints +=
+        (completed - previousCompleted) * pointsPerTask;
+
+    totalPoints = Math.max(0, totalPoints);
+
+    localStorage.setItem("jahhiz-points", totalPoints);
+
+    localStorage.setItem(
+        "jahhiz-previous-count",
+        completed
+    );
+
+    const percentage = Math.round(
+        (completed / totalTasks) * 100
+    );
+
+    document.getElementById("totalPoints").textContent =
+        totalPoints.toLocaleString("en-IN");
+
+    document.getElementById("completedCount").textContent =
+        completed + "/" + totalTasks;
+
+    document.getElementById("progressPercent").textContent =
+        percentage + "% Completed";
+
+    document.getElementById("progressText").textContent =
+        completed + " of " + totalTasks + " completed";
+
+    document.getElementById("progressFill").style.width =
+        percentage + "%";
+
+    document.getElementById("streakCount").textContent =
+        calculateStreak();
+
+    document.getElementById("myRankPoints").textContent =
+        totalPoints + " pts";
+}
+
+updateDashboard();
+
 </script>
 
 </body>
