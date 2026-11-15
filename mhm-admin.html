@@ -42,7 +42,7 @@ main {
   padding:17px;
   margin-bottom:15px;
 }
-input, select {
+input {
   width:100%;
   padding:13px;
   border:1px solid var(--border);
@@ -132,6 +132,14 @@ th,td {
   gap:10px;
 }
 .report-item:last-child { border:0; }
+.profile-head {
+  background:var(--light);
+  border-radius:12px;
+  padding:16px;
+  margin:14px 0;
+}
+.profile-head h2 { margin:0 0 6px; }
+.section-title { margin-top:20px; }
 @media(min-width:650px) {
   .stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
@@ -147,6 +155,7 @@ th,td {
 
 <main>
 
+<!-- LOGIN -->
 <section id="loginBox" class="card">
   <h3>MHM Admin Login</h3>
   <p class="muted">Authorized administrator only</p>
@@ -163,6 +172,7 @@ th,td {
   <p id="loginMessage" class="error"></p>
 </section>
 
+<!-- DASHBOARD -->
 <section id="dashboard" class="hidden">
 
   <div class="card">
@@ -178,6 +188,7 @@ th,td {
     </div>
   </div>
 
+  <!-- DASHBOARD STATISTICS -->
   <div class="stats">
     <div class="stat">
       Students
@@ -197,6 +208,18 @@ th,td {
     </div>
   </div>
 
+  <!-- STUDENT MANAGEMENT -->
+  <div class="card">
+    <h3>Student Management</h3>
+    <p class="muted">Search and view individual student profiles.</p>
+
+    <input id="searchStudent"
+      placeholder="Search student by name...">
+
+    <div id="studentList">Loading students...</div>
+  </div>
+
+  <!-- RANKING -->
   <div class="card">
     <h3>Student Ranking</h3>
     <p class="muted" id="periodDescription">All-time ranking</p>
@@ -207,14 +230,21 @@ th,td {
       <button data-period="month">Monthly</button>
     </div>
 
-    <input id="searchStudent" placeholder="Search student...">
-    <div id="studentList">Loading...</div>
+    <div id="rankingList">Loading ranking...</div>
   </div>
 
+  <!-- INDIVIDUAL PROFILE -->
   <section id="studentReport" class="card hidden">
-    <button class="secondary" id="backBtn">← Back to Ranking</button>
-    <h3 id="reportStudentName">Student Report</h3>
-    <p class="muted">MHM Student Detailed Report</p>
+
+    <button class="secondary" id="backBtn">
+      ← Back
+    </button>
+
+    <div class="profile-head">
+      <h2 id="reportStudentName">Student</h2>
+      <p class="muted">MHM Student Profile</p>
+      <span class="muted" id="reportStudentId"></span>
+    </div>
 
     <div class="stats">
       <div class="stat">
@@ -225,15 +255,42 @@ th,td {
         Activities
         <strong id="reportCount">0</strong>
       </div>
+      <div class="stat">
+        Active Days
+        <strong id="reportDays">0</strong>
+      </div>
+      <div class="stat">
+        Average / Day
+        <strong id="reportAverage">0</strong>
+      </div>
     </div>
 
-    <h4>Activity History</h4>
+    <h3 class="section-title">Performance Details</h3>
+
+    <div class="report-item">
+      <span>Weekly Points</span>
+      <strong class="points" id="reportWeekly">0</strong>
+    </div>
+
+    <div class="report-item">
+      <span>Monthly Points</span>
+      <strong class="points" id="reportMonthly">0</strong>
+    </div>
+
+    <div class="report-item">
+      <span>Last Activity</span>
+      <strong id="reportLastDate">-</strong>
+    </div>
+
+    <h3 class="section-title">Daily Activity History</h3>
     <div id="reportActivities"></div>
   </section>
 
+  <!-- RECENT ACTIVITIES -->
   <div class="card">
     <h3>Recent Daily Deeds</h3>
     <p class="muted">Latest MHM student activities</p>
+
     <div class="table-wrap">
       <table>
         <thead>
@@ -257,9 +314,14 @@ th,td {
 </main>
 
 <script>
+
 /* SUPABASE CONFIGURATION */
-const SUPABASE_URL = "https://uxpzcarxcsrcbjpyjkns.supabase.co";
-const SUPABASE_KEY = "sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
+
+const SUPABASE_URL =
+"https://uxpzcarxcsrcbjpyjkns.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
 
 const db = window.supabase.createClient(
   SUPABASE_URL,
@@ -271,6 +333,8 @@ const $ = id => document.getElementById(id);
 let students = [];
 let deeds = [];
 let currentPeriod = "all";
+
+/* HELPERS */
 
 function safe(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -284,8 +348,8 @@ function safe(value) {
 
 function localDate(date = new Date()) {
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
+  const m = String(date.getMonth()+1).padStart(2,"0");
+  const d = String(date.getDate()).padStart(2,"0");
   return `${y}-${m}-${d}`;
 }
 
@@ -302,6 +366,8 @@ function getMonthStart() {
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-01`;
 }
 
+/* LOGIN */
+
 function showLogin(message = "") {
   $("loginBox").classList.remove("hidden");
   $("dashboard").classList.add("hidden");
@@ -313,18 +379,18 @@ function showDashboard() {
   $("dashboard").classList.remove("hidden");
 }
 
-async function login(email, password) {
+async function login(email,password) {
   $("loginBtn").disabled = true;
   $("loginMessage").textContent = "Checking login...";
 
-  const { data, error } = await db.auth.signInWithPassword({
+  const {data,error} = await db.auth.signInWithPassword({
     email,
     password
   });
 
   $("loginBtn").disabled = false;
 
-  if (error) {
+  if(error) {
     showLogin(error.message);
     return;
   }
@@ -332,14 +398,16 @@ async function login(email, password) {
   await checkAdmin(data.user);
 }
 
+/* ADMIN SECURITY */
+
 async function checkAdmin(user) {
-  const { data: profile, error } = await db
+  const {data:profile,error} = await db
     .from("profiles")
-    .select("full_name, role, category")
-    .eq("id", user.id)
+    .select("full_name,role,category")
+    .eq("id",user.id)
     .single();
 
-  if (
+  if(
     error ||
     !profile ||
     profile.role !== "mhm_admin" ||
@@ -357,43 +425,42 @@ async function checkAdmin(user) {
   await loadDashboard();
 }
 
-/* LOAD ALL MHM STUDENTS AND THEIR VISIBLE REPORTS */
+/* LOAD DATA */
+
 async function loadDashboard() {
   $("dashboardMessage").textContent = "Loading data...";
-
   $("refreshBtn").disabled = true;
 
   try {
-    const { data: studentData, error: studentError } = await db
+
+    const {data:studentData,error:studentError} = await db
       .from("profiles")
-      .select("id, full_name, category, role")
-      .eq("category", "mhm")
-      .eq("role", "student")
+      .select("id,full_name,category,role,created_at")
+      .eq("category","mhm")
+      .eq("role","student")
       .order("full_name");
 
-    if (studentError) throw studentError;
+    if(studentError) throw studentError;
 
     students = studentData || [];
-
     deeds = [];
 
-    // Load reports in pages to avoid the default row limit.
     let from = 0;
     const pageSize = 1000;
 
-    while (true) {
-      const { data, error } = await db
+    while(true) {
+      const {data,error} = await db
         .from("daily_deeds")
-        .select("user_id, deed_name, points, deed_date")
-        .order("deed_date", { ascending:false })
-        .range(from, from + pageSize - 1);
+        .select("user_id,deed_name,points,deed_date")
+        .order("deed_date",{ascending:false})
+        .range(from,from+pageSize-1);
 
-      if (error) throw error;
+      if(error) throw error;
 
       const page = data || [];
       deeds.push(...page);
 
-      if (page.length < pageSize) break;
+      if(page.length < pageSize) break;
 
       from += pageSize;
     }
@@ -403,13 +470,15 @@ async function loadDashboard() {
     $("dashboardMessage").textContent =
       "Data loaded successfully.";
 
-  } catch (error) {
+  } catch(error) {
     $("dashboardMessage").textContent =
       "Error: " + error.message;
   } finally {
     $("refreshBtn").disabled = false;
   }
 }
+
+/* POINT CALCULATION */
 
 function getTotals() {
   const totals = {};
@@ -418,7 +487,9 @@ function getTotals() {
     totals[student.id] = {
       all:0,
       week:0,
-      month:0
+      month:0,
+      count:0,
+      dates:new Set()
     };
   });
 
@@ -427,36 +498,42 @@ function getTotals() {
   const today = localDate();
 
   deeds.forEach(deed => {
-    if (!totals[deed.user_id]) return;
+    const item = totals[deed.user_id];
+
+    if(!item) return;
 
     const points = Number(deed.points) || 0;
     const date = deed.deed_date;
 
-    totals[deed.user_id].all += points;
+    item.all += points;
+    item.count++;
+    item.dates.add(date);
 
-    if (date >= weekStart && date <= today) {
-      totals[deed.user_id].week += points;
+    if(date >= weekStart && date <= today) {
+      item.week += points;
     }
 
-    if (date >= monthStart && date <= today) {
-      totals[deed.user_id].month += points;
+    if(date >= monthStart && date <= today) {
+      item.month += points;
     }
   });
 
   return totals;
 }
 
+/* DASHBOARD */
+
 function renderDashboard() {
   const totals = getTotals();
 
   const allPoints = Object.values(totals)
-    .reduce((sum,item) => sum + item.all, 0);
+    .reduce((sum,item) => sum+item.all,0);
 
   const weekPoints = Object.values(totals)
-    .reduce((sum,item) => sum + item.week, 0);
+    .reduce((sum,item) => sum+item.week,0);
 
   const monthPoints = Object.values(totals)
-    .reduce((sum,item) => sum + item.month, 0);
+    .reduce((sum,item) => sum+item.month,0);
 
   $("studentCount").textContent = students.length;
   $("totalPoints").textContent = allPoints;
@@ -466,89 +543,91 @@ function renderDashboard() {
   window.studentTotals = totals;
 
   renderStudents();
+  renderRanking();
   renderDeeds();
 }
 
+/* STUDENT MANAGEMENT */
+
 function renderStudents() {
-  const totals = window.studentTotals || {};
   const query = $("searchStudent").value.toLowerCase();
 
-  const ranking = [...students].sort((a,b) =>
-    (totals[b.id]?.[currentPeriod] || 0) -
-    (totals[a.id]?.[currentPeriod] || 0)
-  );
-
-  const filtered = ranking.filter(student =>
+  const filtered = students.filter(student =>
     (student.full_name || "").toLowerCase().includes(query)
   );
 
+  if(!filtered.length) {
+    $("studentList").innerHTML =
+      '<p class="muted">No students found.</p>';
+    return;
+  }
+
+  $("studentList").innerHTML = filtered.map(student => {
+    const total = window.studentTotals[student.id]?.all || 0;
+
+    return `
+      <div class="student">
+        <div>
+          <strong>${safe(student.full_name || "Student")}</strong>
+          <span class="muted">MHM Student</span>
+        </div>
+        <div style="text-align:right">
+          <div class="points">${total} pts</div>
+          <button class="secondary viewProfile"
+            data-id="${safe(student.id)}"
+            style="margin-top:7px;padding:7px 10px;font-size:12px">
+            View Profile
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* RANKING */
+
+function renderRanking() {
+  const totals = window.studentTotals || {};
+
   const descriptions = {
     all:"All-time ranking",
-    week:"Monday to today ranking",
+    week:"Monday to today",
     month:"First day of this month to today"
   };
 
   $("periodDescription").textContent =
     descriptions[currentPeriod];
 
-  if (!filtered.length) {
-    $("studentList").innerHTML =
-      '<p class="muted">No MHM students found.</p>';
+  const ranking = [...students].sort((a,b) =>
+    (totals[b.id]?.[currentPeriod] || 0) -
+    (totals[a.id]?.[currentPeriod] || 0)
+  );
+
+  if(!ranking.length) {
+    $("rankingList").innerHTML =
+      '<p class="muted">No ranking data available.</p>';
     return;
   }
 
-  $("studentList").innerHTML = filtered.map((student,index) => `
+  $("rankingList").innerHTML = ranking.map((student,index) => `
     <div class="student">
       <div>
-        <strong>${index + 1}. ${safe(student.full_name || "Student")}</strong>
+        <strong>${index+1}. ${safe(student.full_name || "Student")}</strong>
         <span class="muted">MHM Student</span>
       </div>
-      <div style="text-align:right">
-        <div class="points">
-          ${totals[student.id]?.[currentPeriod] || 0} pts
-        </div>
-        <button class="secondary reportBtn"
-          data-id="${safe(student.id)}"
-          style="margin-top:7px;padding:7px 10px;font-size:12px">
-          View Report
-        </button>
+      <div class="points">
+        ${totals[student.id]?.[currentPeriod] || 0} pts
       </div>
     </div>
   `).join("");
 }
 
-function renderDeeds() {
-  const names = {};
+/* INDIVIDUAL STUDENT PROFILE */
 
-  students.forEach(student => {
-    names[student.id] = student.full_name || "Student";
-  });
-
-  const visible = deeds.filter(deed =>
-    Object.prototype.hasOwnProperty.call(names, deed.user_id)
-  ).slice(0,100);
-
-  if (!visible.length) {
-    $("deedsTable").innerHTML =
-      '<tr><td colspan="4">No reports found.</td></tr>';
-    return;
-  }
-
-  $("deedsTable").innerHTML = visible.map(deed => `
-    <tr>
-      <td>${safe(names[deed.user_id])}</td>
-      <td>${safe(deed.deed_name)}</td>
-      <td>${Number(deed.points) || 0}</td>
-      <td>${safe(deed.deed_date)}</td>
-    </tr>
-  `).join("");
-}
-
-/* INDIVIDUAL STUDENT REPORT */
 function showStudentReport(studentId) {
   const student = students.find(s => s.id === studentId);
 
-  if (!student) return;
+  if(!student) return;
 
   const report = deeds
     .filter(deed => deed.user_id === studentId)
@@ -556,22 +635,40 @@ function showStudentReport(studentId) {
       String(b.deed_date).localeCompare(String(a.deed_date))
     );
 
-  const total = report.reduce(
-    (sum,deed) => sum + (Number(deed.points) || 0), 0
-  );
+  const totals = window.studentTotals[studentId];
+
+  const total = totals?.all || 0;
+  const activeDays = totals?.dates.size || 0;
+  const average = activeDays
+    ? (total/activeDays).toFixed(1)
+    : 0;
 
   $("reportStudentName").textContent =
     student.full_name || "Student";
 
+  $("reportStudentId").textContent =
+    "Registered: " +
+    (student.created_at
+      ? String(student.created_at).slice(0,10)
+      : "Date unavailable");
+
   $("reportTotal").textContent = total;
   $("reportCount").textContent = report.length;
+  $("reportDays").textContent = activeDays;
+  $("reportAverage").textContent = average;
 
-  if (!report.length) {
+  $("reportWeekly").textContent = totals?.week || 0;
+  $("reportMonthly").textContent = totals?.month || 0;
+
+  $("reportLastDate").textContent =
+    report.length ? report[0].deed_date : "No activity";
+
+  if(!report.length) {
     $("reportActivities").innerHTML =
       '<p class="muted">No activities found.</p>';
   } else {
     $("reportActivities").innerHTML = report
-      .slice(0,200)
+      .slice(0,300)
       .map(deed => `
         <div class="report-item">
           <div>
@@ -589,60 +686,96 @@ function showStudentReport(studentId) {
   $("studentReport").scrollIntoView({behavior:"smooth"});
 }
 
+/* RECENT DAILY DEEDS */
+
+function renderDeeds() {
+  const names = {};
+
+  students.forEach(student => {
+    names[student.id] = student.full_name || "Student";
+  });
+
+  const visible = deeds.filter(deed =>
+    Object.prototype.hasOwnProperty.call(names,deed.user_id)
+  ).slice(0,100);
+
+  if(!visible.length) {
+    $("deedsTable").innerHTML =
+      '<tr><td colspan="4">No reports found.</td></tr>';
+    return;
+  }
+
+  $("deedsTable").innerHTML = visible.map(deed => `
+    <tr>
+      <td>${safe(names[deed.user_id])}</td>
+      <td>${safe(deed.deed_name)}</td>
+      <td>${Number(deed.points) || 0}</td>
+      <td>${safe(deed.deed_date)}</td>
+    </tr>
+  `).join("");
+}
+
 /* EVENTS */
-$("loginForm").addEventListener("submit", async event => {
+
+$("loginForm").addEventListener("submit",async event => {
   event.preventDefault();
+
   await login(
     $("email").value.trim(),
     $("password").value
   );
 });
 
-$("logoutBtn").addEventListener("click", async () => {
+$("logoutBtn").addEventListener("click",async () => {
   await db.auth.signOut();
   showLogin("You have logged out.");
 });
 
-$("refreshBtn").addEventListener("click", loadDashboard);
+$("refreshBtn").addEventListener("click",loadDashboard);
 
-$("searchStudent").addEventListener("input", renderStudents);
+$("searchStudent").addEventListener("input",renderStudents);
+
+$("studentList").addEventListener("click",event => {
+  const button = event.target.closest(".viewProfile");
+
+  if(button) {
+    showStudentReport(button.dataset.id);
+  }
+});
 
 document.querySelectorAll("[data-period]").forEach(button => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click",() => {
     currentPeriod = button.dataset.period;
 
     document.querySelectorAll("[data-period]")
       .forEach(item => item.classList.remove("active"));
 
     button.classList.add("active");
-    renderStudents();
+    renderRanking();
   });
 });
 
-$("studentList").addEventListener("click", event => {
-  const button = event.target.closest(".reportBtn");
-  if (button) showStudentReport(button.dataset.id);
-});
-
-$("backBtn").addEventListener("click", () => {
+$("backBtn").addEventListener("click",() => {
   $("studentReport").classList.add("hidden");
 });
 
-async function start() {
-  const { data, error } = await db.auth.getSession();
+/* SESSION RESTORE */
 
-  if (error) {
+async function start() {
+  const {data,error} = await db.auth.getSession();
+
+  if(error) {
     showLogin(error.message);
     return;
   }
 
-  if (data.session) {
+  if(data.session) {
     await checkAdmin(data.session.user);
   }
 }
 
 start();
-</script>
 
+</script>
 </body>
 </html>
