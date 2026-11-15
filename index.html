@@ -255,7 +255,6 @@ footer {
     <option value="">Select your category</option>
     <option value="mhm">MHM</option>
     <option value="general">General</option>
-    <option value="both">MHM + General</option>
   </select>
 
   <label class="note">Email Address</label>
@@ -572,8 +571,7 @@ if (localStorage.getItem("jahhiz-theme") === "dark") {
 function getCategoryLabel(category) {
   const labels = {
     mhm: "MHM",
-    general: "General",
-    both: "MHM + General"
+    general: "General"
   };
 
   return labels[category] || "MHM";
@@ -594,6 +592,11 @@ async function studentRegister() {
 
   if (!name || !email || !password || !category) {
     message.textContent = "Please fill in all fields and select your category.";
+    return;
+  }
+
+  if (!["mhm", "general"].includes(category)) {
+    message.textContent = "Please select a valid category.";
     return;
   }
 
@@ -712,7 +715,6 @@ async function studentLogout() {
 function calculateActivities() {
   const items = [];
 
-  // Salah points
   document.querySelectorAll(".prayer-select").forEach(select => {
     const prayer = select.dataset.prayer;
     const choice = select.value;
@@ -733,7 +735,6 @@ function calculateActivities() {
     });
   });
 
-  // Qur'an points
   const pages = Math.min(
     604,
     Math.max(0, Number(document.getElementById("quranPages").value) || 0)
@@ -746,7 +747,6 @@ function calculateActivities() {
     });
   }
 
-  // Dhikr points
   document.querySelectorAll(".dhikr-check:checked").forEach(check => {
     items.push({
       name: "Dhikr: " + check.dataset.name,
@@ -754,7 +754,6 @@ function calculateActivities() {
     });
   });
 
-  // Sunnah points
   document.querySelectorAll(".sunnah-check:checked").forEach(check => {
     items.push({
       name: "Sunnah: " + check.dataset.name,
