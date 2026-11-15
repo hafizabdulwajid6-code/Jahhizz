@@ -4,13 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JAHHIZ | MHM Admin</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
   --bg:#f4f7f5;
-  --card:#ffffff;
+  --card:#fff;
   --text:#17251d;
   --muted:#718078;
   --green:#176b45;
@@ -32,35 +31,37 @@ header {
 header h2 { margin:0 0 5px; }
 header p { margin:0; opacity:.8; font-size:13px; }
 main {
-  max-width:950px;
+  max-width:1000px;
   margin:auto;
-  padding:18px;
+  padding:16px;
 }
 .card {
   background:var(--card);
   border:1px solid var(--border);
   border-radius:15px;
-  padding:18px;
+  padding:17px;
   margin-bottom:15px;
 }
-input {
+input, select {
   width:100%;
   padding:13px;
   border:1px solid var(--border);
   border-radius:9px;
   margin:7px 0 12px;
   font-size:15px;
+  background:white;
 }
 button {
   border:0;
   background:var(--green);
   color:white;
-  padding:12px 17px;
+  padding:11px 15px;
   border-radius:9px;
   font-weight:bold;
   cursor:pointer;
 }
 button.secondary { background:#52645a; }
+button.active { background:#123d2b; }
 button:disabled { opacity:.5; }
 .hidden { display:none !important; }
 .muted { color:var(--muted); font-size:13px; }
@@ -68,11 +69,11 @@ button:disabled { opacity:.5; }
 .stats {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
+  gap:11px;
 }
 .stat {
   background:var(--light);
-  padding:16px;
+  padding:15px;
   border-radius:12px;
 }
 .stat strong {
@@ -84,12 +85,12 @@ button:disabled { opacity:.5; }
 .student {
   border:1px solid var(--border);
   border-radius:11px;
-  padding:14px;
-  margin-top:10px;
+  padding:13px;
+  margin-top:9px;
   display:flex;
   justify-content:space-between;
-  gap:10px;
   align-items:center;
+  gap:10px;
 }
 .student strong { display:block; }
 .points {
@@ -97,19 +98,42 @@ button:disabled { opacity:.5; }
   font-weight:bold;
   white-space:nowrap;
 }
+.tabs {
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:12px 0;
+}
+.tabs button {
+  background:#e8eee9;
+  color:#244333;
+}
+.tabs button.active {
+  background:var(--green);
+  color:white;
+}
+.table-wrap { overflow-x:auto; }
 table {
   width:100%;
   border-collapse:collapse;
   font-size:13px;
+  min-width:440px;
 }
 th,td {
   text-align:left;
   padding:11px 7px;
   border-bottom:1px solid var(--border);
 }
-.table-wrap { overflow-x:auto; }
-@media(min-width:600px) {
-  .stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.report-item {
+  border-bottom:1px solid var(--border);
+  padding:12px 0;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+.report-item:last-child { border:0; }
+@media(min-width:650px) {
+  .stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
 </style>
 </head>
@@ -125,7 +149,7 @@ th,td {
 
 <section id="loginBox" class="card">
   <h3>MHM Admin Login</h3>
-  <p class="muted">Authorized MHM administrator only</p>
+  <p class="muted">Authorized administrator only</p>
 
   <form id="loginForm">
     <label>Email</label>
@@ -147,7 +171,10 @@ th,td {
         <h3 style="margin:0">MHM Dashboard</h3>
         <p id="adminName" class="muted"></p>
       </div>
-      <button class="secondary" id="logoutBtn">Logout</button>
+      <div style="display:flex;gap:7px">
+        <button class="secondary" id="refreshBtn">Refresh</button>
+        <button class="secondary" id="logoutBtn">Logout</button>
+      </div>
     </div>
   </div>
 
@@ -161,20 +188,52 @@ th,td {
       <strong id="totalPoints">0</strong>
     </div>
     <div class="stat">
-      Activities
-      <strong id="activityCount">0</strong>
+      This Week
+      <strong id="weeklyPoints">0</strong>
+    </div>
+    <div class="stat">
+      This Month
+      <strong id="monthlyPoints">0</strong>
     </div>
   </div>
 
   <div class="card">
     <h3>Student Ranking</h3>
+    <p class="muted" id="periodDescription">All-time ranking</p>
+
+    <div class="tabs">
+      <button class="active" data-period="all">Overall</button>
+      <button data-period="week">Weekly</button>
+      <button data-period="month">Monthly</button>
+    </div>
+
     <input id="searchStudent" placeholder="Search student...">
     <div id="studentList">Loading...</div>
   </div>
 
+  <section id="studentReport" class="card hidden">
+    <button class="secondary" id="backBtn">← Back to Ranking</button>
+    <h3 id="reportStudentName">Student Report</h3>
+    <p class="muted">MHM Student Detailed Report</p>
+
+    <div class="stats">
+      <div class="stat">
+        Total Points
+        <strong id="reportTotal">0</strong>
+      </div>
+      <div class="stat">
+        Activities
+        <strong id="reportCount">0</strong>
+      </div>
+    </div>
+
+    <h4>Activity History</h4>
+    <div id="reportActivities"></div>
+  </section>
+
   <div class="card">
     <h3>Recent Daily Deeds</h3>
-    <p class="muted">MHM students' activity reports</p>
+    <p class="muted">Latest MHM student activities</p>
     <div class="table-wrap">
       <table>
         <thead>
@@ -198,6 +257,7 @@ th,td {
 </main>
 
 <script>
+/* SUPABASE CONFIGURATION */
 const SUPABASE_URL = "https://uxpzcarxcsrcbjpyjkns.supabase.co";
 const SUPABASE_KEY = "sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
 
@@ -206,10 +266,11 @@ const db = window.supabase.createClient(
   SUPABASE_KEY
 );
 
+const $ = id => document.getElementById(id);
+
 let students = [];
 let deeds = [];
-
-const $ = id => document.getElementById(id);
+let currentPeriod = "all";
 
 function safe(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -219,6 +280,26 @@ function safe(value) {
     '"':"&quot;",
     "'":"&#39;"
   }[char]));
+}
+
+function localDate(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const difference = day === 0 ? 6 : day - 1;
+  now.setDate(now.getDate() - difference);
+  return localDate(now);
+}
+
+function getMonthStart() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-01`;
 }
 
 function showLogin(message = "") {
@@ -258,9 +339,12 @@ async function checkAdmin(user) {
     .eq("id", user.id)
     .single();
 
-  if (error || !profile ||
-      profile.role !== "mhm_admin" ||
-      profile.category !== "mhm") {
+  if (
+    error ||
+    !profile ||
+    profile.role !== "mhm_admin" ||
+    profile.category !== "mhm"
+  ) {
     await db.auth.signOut();
     showLogin("Access denied. MHM Admin account only.");
     return;
@@ -273,82 +357,139 @@ async function checkAdmin(user) {
   await loadDashboard();
 }
 
+/* LOAD ALL MHM STUDENTS AND THEIR VISIBLE REPORTS */
 async function loadDashboard() {
-  $("dashboardMessage").textContent = "Loading student data...";
+  $("dashboardMessage").textContent = "Loading data...";
 
-  const { data: studentData, error: studentError } = await db
-    .from("profiles")
-    .select("id, full_name, category, role")
-    .eq("category", "mhm")
-    .eq("role", "student")
-    .order("full_name");
+  $("refreshBtn").disabled = true;
 
-  if (studentError) {
+  try {
+    const { data: studentData, error: studentError } = await db
+      .from("profiles")
+      .select("id, full_name, category, role")
+      .eq("category", "mhm")
+      .eq("role", "student")
+      .order("full_name");
+
+    if (studentError) throw studentError;
+
+    students = studentData || [];
+
+    deeds = [];
+
+    // Load reports in pages to avoid the default row limit.
+    let from = 0;
+    const pageSize = 1000;
+
+    while (true) {
+      const { data, error } = await db
+        .from("daily_deeds")
+        .select("user_id, deed_name, points, deed_date")
+        .order("deed_date", { ascending:false })
+        .range(from, from + pageSize - 1);
+
+      if (error) throw error;
+
+      const page = data || [];
+      deeds.push(...page);
+
+      if (page.length < pageSize) break;
+
+      from += pageSize;
+    }
+
+    renderDashboard();
+
     $("dashboardMessage").textContent =
-      "Could not load students: " + studentError.message;
-    return;
-  }
+      "Data loaded successfully.";
 
-  students = studentData || [];
-
-  const { data: deedData, error: deedError } = await db
-    .from("daily_deeds")
-    .select("user_id, deed_name, points, deed_date")
-    .order("deed_date", { ascending:false })
-    .limit(500);
-
-  if (deedError) {
+  } catch (error) {
     $("dashboardMessage").textContent =
-      "Could not load reports: " + deedError.message;
-    return;
+      "Error: " + error.message;
+  } finally {
+    $("refreshBtn").disabled = false;
   }
-
-  deeds = deedData || [];
-
-  renderDashboard();
-  $("dashboardMessage").textContent =
-    "Data loaded successfully.";
 }
 
-function renderDashboard() {
+function getTotals() {
   const totals = {};
 
   students.forEach(student => {
-    totals[student.id] = 0;
+    totals[student.id] = {
+      all:0,
+      week:0,
+      month:0
+    };
   });
 
+  const weekStart = getWeekStart();
+  const monthStart = getMonthStart();
+  const today = localDate();
+
   deeds.forEach(deed => {
-    if (Object.prototype.hasOwnProperty.call(totals, deed.user_id)) {
-      totals[deed.user_id] += Number(deed.points) || 0;
+    if (!totals[deed.user_id]) return;
+
+    const points = Number(deed.points) || 0;
+    const date = deed.deed_date;
+
+    totals[deed.user_id].all += points;
+
+    if (date >= weekStart && date <= today) {
+      totals[deed.user_id].week += points;
+    }
+
+    if (date >= monthStart && date <= today) {
+      totals[deed.user_id].month += points;
     }
   });
 
-  const ranking = [...students].sort((a,b) =>
-    totals[b.id] - totals[a.id]
-  );
+  return totals;
+}
+
+function renderDashboard() {
+  const totals = getTotals();
+
+  const allPoints = Object.values(totals)
+    .reduce((sum,item) => sum + item.all, 0);
+
+  const weekPoints = Object.values(totals)
+    .reduce((sum,item) => sum + item.week, 0);
+
+  const monthPoints = Object.values(totals)
+    .reduce((sum,item) => sum + item.month, 0);
 
   $("studentCount").textContent = students.length;
-
-  $("totalPoints").textContent =
-    Object.values(totals).reduce((a,b) => a+b, 0);
-
-  $("activityCount").textContent = deeds.length;
+  $("totalPoints").textContent = allPoints;
+  $("weeklyPoints").textContent = weekPoints;
+  $("monthlyPoints").textContent = monthPoints;
 
   window.studentTotals = totals;
-  window.studentRanking = ranking;
 
   renderStudents();
   renderDeeds();
 }
 
 function renderStudents() {
+  const totals = window.studentTotals || {};
   const query = $("searchStudent").value.toLowerCase();
 
-  const ranking = window.studentRanking || [];
+  const ranking = [...students].sort((a,b) =>
+    (totals[b.id]?.[currentPeriod] || 0) -
+    (totals[a.id]?.[currentPeriod] || 0)
+  );
 
   const filtered = ranking.filter(student =>
     (student.full_name || "").toLowerCase().includes(query)
   );
+
+  const descriptions = {
+    all:"All-time ranking",
+    week:"Monday to today ranking",
+    month:"First day of this month to today"
+  };
+
+  $("periodDescription").textContent =
+    descriptions[currentPeriod];
 
   if (!filtered.length) {
     $("studentList").innerHTML =
@@ -362,8 +503,15 @@ function renderStudents() {
         <strong>${index + 1}. ${safe(student.full_name || "Student")}</strong>
         <span class="muted">MHM Student</span>
       </div>
-      <div class="points">
-        ${window.studentTotals[student.id] || 0} pts
+      <div style="text-align:right">
+        <div class="points">
+          ${totals[student.id]?.[currentPeriod] || 0} pts
+        </div>
+        <button class="secondary reportBtn"
+          data-id="${safe(student.id)}"
+          style="margin-top:7px;padding:7px 10px;font-size:12px">
+          View Report
+        </button>
       </div>
     </div>
   `).join("");
@@ -378,7 +526,7 @@ function renderDeeds() {
 
   const visible = deeds.filter(deed =>
     Object.prototype.hasOwnProperty.call(names, deed.user_id)
-  );
+  ).slice(0,100);
 
   if (!visible.length) {
     $("deedsTable").innerHTML =
@@ -396,9 +544,58 @@ function renderDeeds() {
   `).join("");
 }
 
+/* INDIVIDUAL STUDENT REPORT */
+function showStudentReport(studentId) {
+  const student = students.find(s => s.id === studentId);
+
+  if (!student) return;
+
+  const report = deeds
+    .filter(deed => deed.user_id === studentId)
+    .sort((a,b) =>
+      String(b.deed_date).localeCompare(String(a.deed_date))
+    );
+
+  const total = report.reduce(
+    (sum,deed) => sum + (Number(deed.points) || 0), 0
+  );
+
+  $("reportStudentName").textContent =
+    student.full_name || "Student";
+
+  $("reportTotal").textContent = total;
+  $("reportCount").textContent = report.length;
+
+  if (!report.length) {
+    $("reportActivities").innerHTML =
+      '<p class="muted">No activities found.</p>';
+  } else {
+    $("reportActivities").innerHTML = report
+      .slice(0,200)
+      .map(deed => `
+        <div class="report-item">
+          <div>
+            <strong>${safe(deed.deed_name)}</strong>
+            <div class="muted">${safe(deed.deed_date)}</div>
+          </div>
+          <strong class="points">
+            ${Number(deed.points) || 0} pts
+          </strong>
+        </div>
+      `).join("");
+  }
+
+  $("studentReport").classList.remove("hidden");
+  $("studentReport").scrollIntoView({behavior:"smooth"});
+}
+
+/* EVENTS */
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
-  await login($("email").value.trim(), $("password").value);
+  await login(
+    $("email").value.trim(),
+    $("password").value
+  );
 });
 
 $("logoutBtn").addEventListener("click", async () => {
@@ -406,10 +603,38 @@ $("logoutBtn").addEventListener("click", async () => {
   showLogin("You have logged out.");
 });
 
+$("refreshBtn").addEventListener("click", loadDashboard);
+
 $("searchStudent").addEventListener("input", renderStudents);
 
+document.querySelectorAll("[data-period]").forEach(button => {
+  button.addEventListener("click", () => {
+    currentPeriod = button.dataset.period;
+
+    document.querySelectorAll("[data-period]")
+      .forEach(item => item.classList.remove("active"));
+
+    button.classList.add("active");
+    renderStudents();
+  });
+});
+
+$("studentList").addEventListener("click", event => {
+  const button = event.target.closest(".reportBtn");
+  if (button) showStudentReport(button.dataset.id);
+});
+
+$("backBtn").addEventListener("click", () => {
+  $("studentReport").classList.add("hidden");
+});
+
 async function start() {
-  const { data } = await db.auth.getSession();
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    showLogin(error.message);
+    return;
+  }
 
   if (data.session) {
     await checkAdmin(data.session.user);
