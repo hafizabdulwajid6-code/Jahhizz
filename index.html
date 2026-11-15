@@ -788,44 +788,55 @@ async function saveReport() {
   const message = document.getElementById("saveMessage");
   message.textContent = "Saving report...";
 
-  const items = calculateActivities();
+  // Collect Salah selections
+  const prayers = {};
 
-  // Remove the previous report for this user and date.
-  const { error: deleteError } = await supabaseClient
-    .from("daily_deeds")
-    .delete()
-    .eq("user_id", currentUser.id)
-    .eq("deed_date", currentDate);
+  document.querySelectorAll(".prayer-select").forEach(select => {
+    prayers[select.dataset.prayer] = select.value;
+  });
 
-  if (deleteError) {
-    message.textContent = "Could not update report: " + deleteError.message;
+  // Collect Quran pages
+  const quranPages = Number(
+    document.getElementById("quranPages").value
+  );
+
+  // Collect completed Dhikr
+  const dhikr = Array.from(
+    document.querySelectorAll(".dhikr-check:checked")
+  ).map(check => check.dataset.name);
+
+  // Collect completed Sunnah
+  const sunnah = Array.from(
+    document.querySelectorAll(".sunnah-check:checked")
+  ).map(check => check.dataset.name);
+
+  // Send activity selections to secure database function
+  const report = {
+    prayers: prayers,
+    quran_pages: quranPages,
+    dhikr: dhikr,
+    sunnah: sunnah
+  };
+
+  const { error } = await supabaseClient.rpc(
+    "save_daily_report",
+    {
+      p_deed_date: currentDate,
+      p_report: report
+    }
+  );
+
+  if (error) {
+    message.textContent = "Save failed: " + error.message;
     return;
   }
 
-  if (items.length > 0) {
-    const rows = items.map(item => ({
-      user_id: currentUser.id,
-      deed_name: item.name,
-      points: item.points,
-      deed_date: currentDate
-    }));
-
-    const { error: insertError } = await supabaseClient
-      .from("daily_deeds")
-      .insert(rows);
-
-    if (insertError) {
-      message.textContent = "Save failed: " + insertError.message;
-      return;
-    }
-  }
-
-  message.textContent = "Daily report saved successfully!";
+  message.textContent =
+    "Daily report saved successfully!";
 
   updateDashboard();
   await loadStudentPoints();
 }
-
 // =======================================
 // 11. LOAD SAVED DAILY REPORT
 // =======================================
