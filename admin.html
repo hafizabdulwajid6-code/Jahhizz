@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAHHIZ | Admin Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f4;color:#17251f;font-family:Arial,sans-serif}
+header{background:#123d2d;color:white;padding:22px}
+header h1{margin:0;font-size:24px}
+header p{margin:6px 0 0;color:#c8ddd2}
+main{max-width:1100px;margin:25px auto;padding:0 15px}
+.card{background:white;padding:20px;border-radius:14px;margin-bottom:16px;box-shadow:0 3px 12px #0000000c}
+input,button,select{padding:12px;border-radius:8px;border:1px solid #ccd8d1;font-size:15px}
+input{width:100%;margin:8px 0}
+button{background:#176b49;color:white;border:0;cursor:pointer}
+button.secondary{background:#e7eee9;color:#173c2d}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:#edf5ef;padding:17px;border-radius:12px}
+.stat strong{display:block;font-size:25px;margin-top:8px}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #e5ebe7}
+.table-wrap{overflow-x:auto}
+#message{color:#b3261e;margin-top:10px}
+.small{color:#64746b;font-size:13px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>JAHHIZ — Admin Portal</h1>
+<p>Daily Deeds Management System</p>
+</header>
+
+<main>
+
+<section id="loginBox" class="card">
+<h2>Administrator Login</h2>
+<p class="small">Authorized administrator account only.</p>
+<input id="email" type="email" placeholder="Admin Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p id="message"></p>
+</section>
+
+<section id="dashboard" class="hidden">
+
+<div class="card">
+<h2>Admin Dashboard</h2>
+<p id="adminEmail" class="small"></p>
+<button class="secondary" onclick="logout()">Logout</button>
+<button onclick="loadDashboard()">Refresh Data</button>
+</div>
+
+<div class="grid">
+<div class="stat">Total Students<strong id="studentCount">0</strong></div>
+<div class="stat">Today's Points<strong id="todayPoints">0</strong></div>
+<div class="stat">This Month<strong id="monthPoints">0</strong></div>
+<div class="stat">Overall Points<strong id="totalPoints">0</strong></div>
+</div>
+
+<div class="card">
+<h2>Student Rankings</h2>
+<select id="period" onchange="showRanking()">
+<option value="daily">Daily Ranking</option>
+<option value="weekly">Weekly Ranking</option>
+<option value="monthly">Monthly Ranking</option>
+<option value="total">Overall Ranking</option>
+</select>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rank</th><th>Student</th><th>Points</th></tr></thead>
+<tbody id="rankingRows"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2>All Students</h2>
+<input id="searchStudent" placeholder="Search student..." oninput="showStudents()">
+<div class="table-wrap">
+<table>
+<thead><tr><th>Name</th><th>Email / ID</th><th>Joined</th></tr></thead>
+<tbody id="studentRows"></tbody>
+</table>
+</div>
+</div>
+
+<p id="dashboardMessage" class="small"></p>
+</section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://uxpzcarxcsrcbjpyjkns.supabase.co";
+
+// ഇവിടെ index.html-ൽ ഉപയോഗിച്ചിരിക്കുന്ന അതേ
+// sb_publishable_... key Paste ചെയ്യുക.
+// service_role key ഒരിക്കലും ഉപയോഗിക്കരുത്.
+const SUPABASE_KEY = "sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let students = [];
+let deeds = [];
+
+function localDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,"0");
+  const d = String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+
+function getWeekStart(date) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+  const day = (d.getDay()+6)%7;
+  d.setDate(d.getDate()-day);
+  return localDate(d);
+}
+
+function getMonthStart(date) {
+  return localDate(new Date(date.getFullYear(),date.getMonth(),1));
+}
+
+async function login() {
+  const message = document.getElementById("message");
+  message.textContent = "Checking login...";
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  const {error} = await db.auth.signInWithPassword({email,password});
+
+  if(error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  await checkAdmin();
+}
+
+async function checkAdmin() {
+  const {data:{user}} = await db.auth.getUser();
+
+  if(!user) {
+    showLogin("Please login.");
+    return;
+  }
+
+  const {data,isError} = await db.rpc("is_admin");
+
+  if(isError || data !== true) {
+    await db.auth.signOut();
+    showLogin("Access denied. Admin account required.");
+    return;
+  }
+
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  document.getElementById("adminEmail").textContent = user.email || "";
+  await loadDashboard();
+}
+
+function showLogin(message) {
+  document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("loginBox").classList.remove("hidden");
+  document.getElementById("message").textContent = message;
+}
+
+async function logout() {
+  await db.auth.signOut();
+  students = [];
+  deeds = [];
+  showLogin("Logged out.");
+}
+
+async function loadAllRows(table,columns) {
+  let result = [];
+  let start = 0;
+  const size = 1000;
+
+  while(true) {
+    const {data,error} = await db
+      .from(table)
+      .select(columns)
+      .range(start,start+size-1);
+
+    if(error) throw error;
+
+    result = result.concat(data || []);
+
+    if(!data || data.length < size) break;
+    start += size;
+  }
+
+  return result;
+}
+
+async function loadDashboard() {
+  const status = document.getElementById("dashboardMessage");
+  status.textContent = "Loading dashboard...";
+
+  try {
+    students = await loadAllRows(
+      "profiles","id,full_name,created_at"
+    );
+
+    deeds = await loadAllRows(
+      "daily_deeds","user_id,points,deed_date"
+    );
+
+    const today = localDate(new Date());
+    const monthStart = getMonthStart(new Date());
+
+    document.getElementById("studentCount").textContent = students.length;
+
+    document.getElementById("todayPoints").textContent =
+      deeds.filter(x=>x.deed_date===today)
+      .reduce((sum,x)=>sum+Number(x.points||0),0);
+
+    document.getElementById("monthPoints").textContent =
+      deeds.filter(x=>x.deed_date>=monthStart)
+      .reduce((sum,x)=>sum+Number(x.points||0),0);
+
+    document.getElementById("totalPoints").textContent =
+      deeds.reduce((sum,x)=>sum+Number(x.points||0),0);
+
+    showRanking();
+    showStudents();
+    status.textContent = "Dashboard updated successfully.";
+
+  } catch(error) {
+    status.textContent = "Error: " + error.message;
+  }
+}
+
+function showRanking() {
+  const period = document.getElementById("period").value;
+  const now = new Date();
+  const today = localDate(now);
+  const weekStart = getWeekStart(now);
+  const monthStart = getMonthStart(now);
+
+  const totals = {};
+
+  students.forEach(s=>totals[s.id]=0);
+
+  deeds.forEach(d=>{
+    let include = true;
+
+    if(period==="daily") include = d.deed_date===today;
+    if(period==="weekly") include = d.deed_date>=weekStart && d.deed_date<=today;
+    if(period==="monthly") include = d.deed_date>=monthStart && d.deed_date<=today;
+
+    if(include && totals[d.user_id]!==undefined) {
+      totals[d.user_id] += Number(d.points||0);
+    }
+  });
+
+  const ranked = students.map(s=>({
+    name:s.full_name || "Unnamed Student",
+    points:totals[s.id] || 0
+  })).sort((a,b)=>b.points-a.points);
+
+  document.getElementById("rankingRows").innerHTML =
+    ranked.map((s,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td>${escapeHTML(s.name)}</td>
+        <td>${s.points}</td>
+      </tr>
+    `).join("");
+}
+
+function showStudents() {
+  const search = document.getElementById("searchStudent").value.toLowerCase();
+
+  const filtered = students.filter(s=>
+    (s.full_name||"").toLowerCase().includes(search)
+  );
+
+  document.getElementById("studentRows").innerHTML =
+    filtered.map(s=>`
+      <tr>
+        <td>${escapeHTML(s.full_name||"Unnamed Student")}</td>
+        <td>${escapeHTML(s.id)}</td>
+        <td>${s.created_at ? new Date(s.created_at).toLocaleDateString() : "-"}</td>
+      </tr>
+    `).join("");
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+db.auth.getSession().then(({data})=>{
+  if(data.session) checkAdmin();
+});
+</script>
+</body>
+</html>
