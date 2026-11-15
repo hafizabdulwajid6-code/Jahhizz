@@ -208,6 +208,16 @@ input:focus,select:focus {border-color:var(--primary)}
   margin-top:10px;
   line-height:1.5;
 }
+.category-label {
+  display:inline-block;
+  background:var(--soft);
+  color:var(--primary);
+  padding:7px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
+  margin-top:10px;
+}
 footer {
   text-align:center;
   color:var(--muted);
@@ -240,6 +250,14 @@ footer {
   <label class="note">Student Name (for registration)</label>
   <input id="studentName" type="text" placeholder="Enter your name">
 
+  <label class="note">Student Category</label>
+  <select id="studentCategory">
+    <option value="">Select your category</option>
+    <option value="mhm">MHM</option>
+    <option value="general">General</option>
+    <option value="both">MHM + General</option>
+  </select>
+
   <label class="note">Email Address</label>
   <input id="studentEmail" type="email" placeholder="Enter your email">
 
@@ -259,6 +277,7 @@ footer {
   </div>
   <h3 id="profileName">Student</h3>
   <p class="note" id="profileEmail"></p>
+  <div id="profileCategory" class="category-label">Student</div>
   <p class="note">Your daily progress is saved to your account.</p>
 </section>
 
@@ -505,8 +524,6 @@ footer {
 // =======================================
 
 const SUPABASE_URL = "https://uxpzcarxcsrcbjpyjkns.supabase.co";
-
-// Paste your existing Supabase PUBLISHABLE KEY below.
 const SUPABASE_KEY = "sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
 
 const supabaseClient = window.supabase.createClient(
@@ -549,19 +566,34 @@ if (localStorage.getItem("jahhiz-theme") === "dark") {
 }
 
 // =======================================
-// 4. REGISTER
+// 4. CATEGORY LABEL
+// =======================================
+
+function getCategoryLabel(category) {
+  const labels = {
+    mhm: "MHM",
+    general: "General",
+    both: "MHM + General"
+  };
+
+  return labels[category] || "MHM";
+}
+
+// =======================================
+// 5. REGISTER
 // =======================================
 
 async function studentRegister() {
   const name = document.getElementById("studentName").value.trim();
   const email = document.getElementById("studentEmail").value.trim();
   const password = document.getElementById("studentPassword").value;
+  const category = document.getElementById("studentCategory").value;
   const message = document.getElementById("authMessage");
 
   message.textContent = "";
 
-  if (!name || !email || !password) {
-    message.textContent = "Please fill in all fields.";
+  if (!name || !email || !password || !category) {
+    message.textContent = "Please fill in all fields and select your category.";
     return;
   }
 
@@ -574,7 +606,10 @@ async function studentRegister() {
     email,
     password,
     options: {
-      data: { full_name: name }
+      data: {
+        full_name: name,
+        category: category
+      }
     }
   });
 
@@ -595,7 +630,7 @@ async function studentRegister() {
 }
 
 // =======================================
-// 5. LOGIN
+// 6. LOGIN
 // =======================================
 
 async function studentLogin() {
@@ -627,13 +662,13 @@ async function studentLogin() {
 }
 
 // =======================================
-// 6. PROFILE
+// 7. PROFILE
 // =======================================
 
 async function showStudentProfile() {
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("full_name")
+    .select("full_name, category")
     .eq("id", currentUser.id)
     .maybeSingle();
 
@@ -647,11 +682,16 @@ async function showStudentProfile() {
   document.getElementById("profileEmail").textContent =
     currentUser.email || "";
 
-  if (error) console.error(error.message);
+  document.getElementById("profileCategory").textContent =
+    "Category: " + getCategoryLabel(data ? data.category : null);
+
+  if (error) {
+    console.error(error.message);
+  }
 }
 
 // =======================================
-// 7. LOGOUT
+// 8. LOGOUT
 // =======================================
 
 async function studentLogout() {
@@ -666,7 +706,7 @@ async function studentLogout() {
 }
 
 // =======================================
-// 8. COLLECT ACTIVITIES
+// 9. COLLECT ACTIVITIES
 // =======================================
 
 function calculateActivities() {
@@ -726,7 +766,7 @@ function calculateActivities() {
 }
 
 // =======================================
-// 9. UPDATE SCREEN
+// 10. UPDATE SCREEN
 // =======================================
 
 function updateDashboard() {
@@ -779,7 +819,7 @@ function escapeHTML(value) {
 }
 
 // =======================================
-// 10. SAVE DAILY REPORT
+// 11. SAVE DAILY REPORT
 // =======================================
 
 async function saveReport() {
@@ -788,29 +828,24 @@ async function saveReport() {
   const message = document.getElementById("saveMessage");
   message.textContent = "Saving report...";
 
-  // Collect Salah selections
   const prayers = {};
 
   document.querySelectorAll(".prayer-select").forEach(select => {
     prayers[select.dataset.prayer] = select.value;
   });
 
-  // Collect Quran pages
   const quranPages = Number(
     document.getElementById("quranPages").value
   );
 
-  // Collect completed Dhikr
   const dhikr = Array.from(
     document.querySelectorAll(".dhikr-check:checked")
   ).map(check => check.dataset.name);
 
-  // Collect completed Sunnah
   const sunnah = Array.from(
     document.querySelectorAll(".sunnah-check:checked")
   ).map(check => check.dataset.name);
 
-  // Send activity selections to secure database function
   const report = {
     prayers: prayers,
     quran_pages: quranPages,
@@ -831,14 +866,14 @@ async function saveReport() {
     return;
   }
 
-  message.textContent =
-    "Daily report saved successfully!";
+  message.textContent = "Daily report saved successfully!";
 
   updateDashboard();
   await loadStudentPoints();
 }
+
 // =======================================
-// 11. LOAD SAVED DAILY REPORT
+// 12. LOAD SAVED DAILY REPORT
 // =======================================
 
 async function loadDailyReport() {
@@ -855,7 +890,6 @@ async function loadDailyReport() {
     return;
   }
 
-  // Clear current selections first.
   document.querySelectorAll(".prayer-select").forEach(select => {
     select.value = "";
   });
@@ -913,7 +947,7 @@ async function loadDailyReport() {
 }
 
 // =======================================
-// 12. LOAD TOTAL POINTS
+// 13. LOAD TOTAL POINTS
 // =======================================
 
 async function loadStudentPoints() {
@@ -958,7 +992,7 @@ async function loadStudentPoints() {
 }
 
 // =======================================
-// 13. LOAD DASHBOARD
+// 14. LOAD DASHBOARD
 // =======================================
 
 async function loadDashboard() {
@@ -969,7 +1003,7 @@ async function loadDashboard() {
 }
 
 // =======================================
-// 14. DATE CHANGE
+// 15. DATE CHANGE
 // =======================================
 
 document.getElementById("date").addEventListener("change", async function() {
@@ -978,7 +1012,6 @@ document.getElementById("date").addEventListener("change", async function() {
   currentDate = this.value;
   await loadDailyReport();
 
-  // Show the selected day's points.
   const items = calculateActivities();
   const total = items.reduce((sum, item) => sum + item.points, 0);
 
@@ -986,7 +1019,7 @@ document.getElementById("date").addEventListener("change", async function() {
 });
 
 // =======================================
-// 15. LIVE ACTIVITY UPDATES
+// 16. LIVE ACTIVITY UPDATES
 // =======================================
 
 document.addEventListener("change", function(event) {
@@ -1003,7 +1036,7 @@ document.addEventListener("change", function(event) {
 document.getElementById("quranPages").addEventListener("input", updateDashboard);
 
 // =======================================
-// 16. CHECK LOGIN SESSION
+// 17. CHECK LOGIN SESSION
 // =======================================
 
 async function checkStudentSession() {
@@ -1022,7 +1055,7 @@ async function checkStudentSession() {
 }
 
 // =======================================
-// 17. AUTH STATE LISTENER
+// 18. AUTH STATE LISTENER
 // =======================================
 
 supabaseClient.auth.onAuthStateChange((event, session) => {
