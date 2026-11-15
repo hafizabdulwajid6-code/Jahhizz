@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAHHIZ | MHM Admin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --bg:#f4f7f5;
+  --card:#ffffff;
+  --text:#17251d;
+  --muted:#718078;
+  --green:#176b45;
+  --light:#e7f3ec;
+  --border:#e5ebe7;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+header {
+  background:#123d2b;
+  color:white;
+  padding:20px;
+}
+header h2 { margin:0 0 5px; }
+header p { margin:0; opacity:.8; font-size:13px; }
+main {
+  max-width:950px;
+  margin:auto;
+  padding:18px;
+}
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:18px;
+  margin-bottom:15px;
+}
+input {
+  width:100%;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  margin:7px 0 12px;
+  font-size:15px;
+}
+button {
+  border:0;
+  background:var(--green);
+  color:white;
+  padding:12px 17px;
+  border-radius:9px;
+  font-weight:bold;
+  cursor:pointer;
+}
+button.secondary { background:#52645a; }
+button:disabled { opacity:.5; }
+.hidden { display:none !important; }
+.muted { color:var(--muted); font-size:13px; }
+.error { color:#b42318; }
+.stats {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.stat {
+  background:var(--light);
+  padding:16px;
+  border-radius:12px;
+}
+.stat strong {
+  display:block;
+  font-size:25px;
+  margin-top:7px;
+  color:var(--green);
+}
+.student {
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:14px;
+  margin-top:10px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+}
+.student strong { display:block; }
+.points {
+  color:var(--green);
+  font-weight:bold;
+  white-space:nowrap;
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th,td {
+  text-align:left;
+  padding:11px 7px;
+  border-bottom:1px solid var(--border);
+}
+.table-wrap { overflow-x:auto; }
+@media(min-width:600px) {
+  .stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>JAHHIZ | MHM ADMIN</h2>
+  <p>MHM Student Management Portal</p>
+</header>
+
+<main>
+
+<section id="loginBox" class="card">
+  <h3>MHM Admin Login</h3>
+  <p class="muted">Authorized MHM administrator only</p>
+
+  <form id="loginForm">
+    <label>Email</label>
+    <input id="email" type="email" required placeholder="Admin email">
+
+    <label>Password</label>
+    <input id="password" type="password" required placeholder="Password">
+
+    <button type="submit" id="loginBtn">Login</button>
+  </form>
+  <p id="loginMessage" class="error"></p>
+</section>
+
+<section id="dashboard" class="hidden">
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div>
+        <h3 style="margin:0">MHM Dashboard</h3>
+        <p id="adminName" class="muted"></p>
+      </div>
+      <button class="secondary" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      Students
+      <strong id="studentCount">0</strong>
+    </div>
+    <div class="stat">
+      Total Points
+      <strong id="totalPoints">0</strong>
+    </div>
+    <div class="stat">
+      Activities
+      <strong id="activityCount">0</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Student Ranking</h3>
+    <input id="searchStudent" placeholder="Search student...">
+    <div id="studentList">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h3>Recent Daily Deeds</h3>
+    <p class="muted">MHM students' activity reports</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Activity</th>
+            <th>Points</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="deedsTable">
+          <tr><td colspan="4">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p id="dashboardMessage" class="muted"></p>
+</section>
+
+</main>
+
+<script>
+const SUPABASE_URL = "https://uxpzcarxcsrcbjpyjkns.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_AP6NVROapGULCJnY5MwiSQ_LgO0Aics";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let students = [];
+let deeds = [];
+
+const $ = id => document.getElementById(id);
+
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[char]));
+}
+
+function showLogin(message = "") {
+  $("loginBox").classList.remove("hidden");
+  $("dashboard").classList.add("hidden");
+  $("loginMessage").textContent = message;
+}
+
+function showDashboard() {
+  $("loginBox").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+}
+
+async function login(email, password) {
+  $("loginBtn").disabled = true;
+  $("loginMessage").textContent = "Checking login...";
+
+  const { data, error } = await db.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  $("loginBtn").disabled = false;
+
+  if (error) {
+    showLogin(error.message);
+    return;
+  }
+
+  await checkAdmin(data.user);
+}
+
+async function checkAdmin(user) {
+  const { data: profile, error } = await db
+    .from("profiles")
+    .select("full_name, role, category")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !profile ||
+      profile.role !== "mhm_admin" ||
+      profile.category !== "mhm") {
+    await db.auth.signOut();
+    showLogin("Access denied. MHM Admin account only.");
+    return;
+  }
+
+  $("adminName").textContent =
+    "Welcome, " + (profile.full_name || "MHM Admin");
+
+  showDashboard();
+  await loadDashboard();
+}
+
+async function loadDashboard() {
+  $("dashboardMessage").textContent = "Loading student data...";
+
+  const { data: studentData, error: studentError } = await db
+    .from("profiles")
+    .select("id, full_name, category, role")
+    .eq("category", "mhm")
+    .eq("role", "student")
+    .order("full_name");
+
+  if (studentError) {
+    $("dashboardMessage").textContent =
+      "Could not load students: " + studentError.message;
+    return;
+  }
+
+  students = studentData || [];
+
+  const { data: deedData, error: deedError } = await db
+    .from("daily_deeds")
+    .select("user_id, deed_name, points, deed_date")
+    .order("deed_date", { ascending:false })
+    .limit(500);
+
+  if (deedError) {
+    $("dashboardMessage").textContent =
+      "Could not load reports: " + deedError.message;
+    return;
+  }
+
+  deeds = deedData || [];
+
+  renderDashboard();
+  $("dashboardMessage").textContent =
+    "Data loaded successfully.";
+}
+
+function renderDashboard() {
+  const totals = {};
+
+  students.forEach(student => {
+    totals[student.id] = 0;
+  });
+
+  deeds.forEach(deed => {
+    if (Object.prototype.hasOwnProperty.call(totals, deed.user_id)) {
+      totals[deed.user_id] += Number(deed.points) || 0;
+    }
+  });
+
+  const ranking = [...students].sort((a,b) =>
+    totals[b.id] - totals[a.id]
+  );
+
+  $("studentCount").textContent = students.length;
+
+  $("totalPoints").textContent =
+    Object.values(totals).reduce((a,b) => a+b, 0);
+
+  $("activityCount").textContent = deeds.length;
+
+  window.studentTotals = totals;
+  window.studentRanking = ranking;
+
+  renderStudents();
+  renderDeeds();
+}
+
+function renderStudents() {
+  const query = $("searchStudent").value.toLowerCase();
+
+  const ranking = window.studentRanking || [];
+
+  const filtered = ranking.filter(student =>
+    (student.full_name || "").toLowerCase().includes(query)
+  );
+
+  if (!filtered.length) {
+    $("studentList").innerHTML =
+      '<p class="muted">No MHM students found.</p>';
+    return;
+  }
+
+  $("studentList").innerHTML = filtered.map((student,index) => `
+    <div class="student">
+      <div>
+        <strong>${index + 1}. ${safe(student.full_name || "Student")}</strong>
+        <span class="muted">MHM Student</span>
+      </div>
+      <div class="points">
+        ${window.studentTotals[student.id] || 0} pts
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderDeeds() {
+  const names = {};
+
+  students.forEach(student => {
+    names[student.id] = student.full_name || "Student";
+  });
+
+  const visible = deeds.filter(deed =>
+    Object.prototype.hasOwnProperty.call(names, deed.user_id)
+  );
+
+  if (!visible.length) {
+    $("deedsTable").innerHTML =
+      '<tr><td colspan="4">No reports found.</td></tr>';
+    return;
+  }
+
+  $("deedsTable").innerHTML = visible.map(deed => `
+    <tr>
+      <td>${safe(names[deed.user_id])}</td>
+      <td>${safe(deed.deed_name)}</td>
+      <td>${Number(deed.points) || 0}</td>
+      <td>${safe(deed.deed_date)}</td>
+    </tr>
+  `).join("");
+}
+
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  await login($("email").value.trim(), $("password").value);
+});
+
+$("logoutBtn").addEventListener("click", async () => {
+  await db.auth.signOut();
+  showLogin("You have logged out.");
+});
+
+$("searchStudent").addEventListener("input", renderStudents);
+
+async function start() {
+  const { data } = await db.auth.getSession();
+
+  if (data.session) {
+    await checkAdmin(data.session.user);
+  }
+}
+
+start();
+</script>
+
+</body>
+</html>
